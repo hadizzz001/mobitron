@@ -37,7 +37,8 @@ export default function NavBar() {
     <>
       <Cart />
 
-      <header className="w-full sticky top-0 z-40 bg-[#f1ede7] shadow-sm">
+      {/* ✅ Header with gradient background */}
+      <header className="w-full sticky top-0 z-40 bg-gradient-to-b from-white to-[#dbdbdb] shadow-sm">
         {/* Desktop layout */}
         <div className="hidden md:flex items-center justify-between px-4 py-4 text-black gap-3">
           {/* Logo */}
@@ -94,7 +95,7 @@ export default function NavBar() {
         </div>
 
         {/* ✅ Mobile layout */}
-        <div className="flex md:hidden flex-col px-3 py-2 bg-[#f1ede7]" id='mymoblayoutformob'>
+        <div className="flex md:hidden flex-col px-3 py-2 bg-gradient-to-b from-white to-[#dbdbdb]" id='mymoblayoutformob'>
           {/* Top row: logo + icons */}
           <div className="flex items-center justify-between">
             <button

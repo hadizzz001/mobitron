@@ -5,8 +5,9 @@ export default function CategoriesRow() {
     { name: 'Phones', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761233025/sp_v4mhcp.webp' },
     { name: 'Tablets', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761233024/tab_svtpa8.webp' },
     { name: 'Accessories', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761233024/acc_oywsn4.webp' },
-    { name: 'Laptops', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761233024/lap_tmx0du.webp' },
-    { name: 'Others', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761233024/other_l2pfbf.webp' },
+    { name: 'Sound and Audio', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761304327/sound_avp9zg.png' },
+    { name: 'Gadgets', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761304326/gad_sqfpwv.png' },
+    { name: 'Gaming Accessories', image: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761304327/game_d6kiki.png' },
   ];
 
   return (
@@ -54,7 +55,7 @@ export default function CategoriesRow() {
           overflow: hidden;
           margin-bottom: 1rem;
           padding: 1.25rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .category-image img {
@@ -74,17 +75,17 @@ export default function CategoriesRow() {
           .categories-container {
             flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 0 0.5rem; /* small padding to avoid first item cutoff */
-            gap: 0.5rem; /* reduce gap */
-            justify-content: flex-start; /* align items from left */
+            padding: 0 0.5rem;
+            gap: 0.5rem;
+            justify-content: flex-start;
           }
 
           .categories-container::-webkit-scrollbar {
-            display: none; /* hide scrollbar */
+            display: none;
           }
 
           .category-item {
-            flex: 0 0 calc(33.333% - 0.33rem); /* 3 items visible */
+            flex: 0 0 calc(33.333% - 0.33rem);
           }
 
           .category-image {
