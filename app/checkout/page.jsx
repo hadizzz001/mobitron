@@ -429,7 +429,7 @@ const generatePDF = async () => {
       />
 
       {cart && cart.length > 0 ? (
-        <div className="wfacp-template-container  ">
+        <div className="wfacp-template-container  mb-10">
 
 
           <div className="wfacp-section wfacp-hg-by-box step_2 form_section_single_step_2_elementor-hific mt-[10em] md:hidden" data-field-count={2}>
@@ -443,7 +443,7 @@ const generatePDF = async () => {
                       width="14"
                       height="14"
                       className="ml-2 mr-2 myBB"
-                      fill="#1cd9ff"
+                      fill="#222"
                     >
                       <path
                         className="st0 myBB"
@@ -456,7 +456,7 @@ const generatePDF = async () => {
                       width="14"
                       height="14"
                       className="ml-2 mr-2 myBB rotate-180"
-                      fill="#1cd9ff"
+                      fill="#222"
                     >
                       <path
                         className="st0 myBB"
@@ -508,7 +508,8 @@ const generatePDF = async () => {
                                   <span className="woocommerce-Price-amount amount" style={{ color: "#82838e" }}>
                                     <bdi>
                                       <span className="woocommerce-Price-currencySymbol" style={{ color: "#82838e" }}>$</span>
-                                      {(obj.discount * localQuantities[obj._id] || obj.discount).toFixed(2)}
+                                       {obj.type === 'collection' && obj.selectedSize ? obj.color.find(c => c.color === obj.selectedColor)?.sizes.find(s => s.size === obj.selectedSize)?.price * (localQuantities[obj._id]) : obj.discount * (localQuantities[obj._id] || 1)}
+ 
                                     </bdi>
                                   </span>
                                 </div>
@@ -771,7 +772,7 @@ const generatePDF = async () => {
                                       <div className="wfacp-comm-form-detail clearfix">
                                         <div className="wfacp-row">
 
-                                          <h1 className="form-row form-row-wide wfacp-form-control-wrapper text-bold myGray">Contact</h1>
+                                          <h4 className="form-row form-row-wide wfacp-form-control-wrapper text-bold myGray">Contact</h4>
 
                                           <p
                                             className="form-row form-row-wide wfacp-form-control-wrapper wfacp-col-full  wfacp_field_required validate-required validate-email validate-email"
@@ -810,7 +811,7 @@ const generatePDF = async () => {
                                             />
                                           </p>
 
-                                           <h1 className="form-row form-row-wide wfacp-form-control-wrapper text-bold myGray">Delivery</h1>
+                                           <h4 className="form-row form-row-wide wfacp-form-control-wrapper text-bold myGray">Delivery</h4>
                                           <p
                                             className="form-row form-row-first wfacp-form-control-wrapper wfacp-col-left-half  wfacp_field_required validate-required"
                                             id="billing_first_name_field"
@@ -1246,27 +1247,7 @@ const generatePDF = async () => {
                                                   </button>
                                                 </div>
 
-                                                <div>
-                                                  <label className="custom-checkbox-container myGray clickText  ">
-                                                    <span className="ml-[25px]"></span>I am business or would like a b2b offer
-                                                    <input type="checkbox" onChange={handleCheckboxChange} />
-                                                    <span className="custom-checkmark"></span>
-                                                  </label>
-
-                                                  {showLink && (
-                                                    <a
-                                                      href="#"
-                                                      onClick={(e) => {
-                                                        e.preventDefault();
-                                                        generatePDF();
-                                                      }}
-                                                      style={{ display: 'block', marginTop: '1em', color: 'blue' }}
-                                                      className="clickText1"
-                                                    >
-                                                      Generate Product PDF
-                                                    </a>
-                                                  )}
-                                                </div>
+                                              
 
 
 
@@ -1420,6 +1401,17 @@ const generatePDF = async () => {
         }}
       />
 
+<style
+  dangerouslySetInnerHTML={{
+    __html:
+      '\n  .button, button, input[type="button"], input[type="reset"], input[type="submit"] {\n \n    background-color: initial !important; \n}\n'
+  }}
+/>
+<style
+  dangerouslySetInnerHTML={{
+    __html: "\nheader{ \n   display: none !important;\n}\n"
+  }}
+/>
 
 
     </>

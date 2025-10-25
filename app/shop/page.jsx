@@ -1,6 +1,93 @@
 "use client";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import CarCard from '../../components/CarCard'; 
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+ 
+
+
+
+
+
+const SlidingPagination = ({ page, totalPages, setPage }) => {
+  const windowSize = 9;
+  const shift = 4; // how much to slide each time
+
+  // Calculate visible range
+  let start = Math.max(1, Math.min(page - shift, totalPages - windowSize + 1));
+  let end = Math.min(start + windowSize - 1, totalPages);
+
+  // Jump to FIRST page
+  const jumpToStart = () => {
+    setPage(1);
+  };
+
+  // Jump to LAST page
+  const jumpToEnd = () => {
+    setPage(totalPages);
+  };
+
+  return (
+    <div className="flex items-center gap-2 justify-center my-6">
+
+      {/* Jump to START */}
+      {page > 1 && (
+
+<button
+  className="w-8 h-8 flex items-center justify-center"
+  onClick={jumpToStart}
+>
+  <svg
+    className="w-6 h-6 text-gray-400"
+    viewBox="0 0 10 10"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <polygon points="10,0 0,5 10,10" />
+  </svg>
+</button>
+
+
+
+      )}
+
+      {/* Page Buttons */}
+      {Array.from({ length: end - start + 1 }, (_, i) => start + i).map((p) => (
+        <button
+          key={p}
+          onClick={() => setPage(p)}
+          className={`w-8 h-8 border flex items-center justify-center ${
+            p === page ? "bg-red-600 text-white font-bold" : "bg-gray-400 text-white"
+          }`}
+        >
+          {p}
+        </button>
+      ))}
+
+      {/* Jump to END */}
+      {page < totalPages && (
+<button
+  className="w-8 h-8 flex items-center justify-center"
+  onClick={jumpToEnd} // or your "next" handler
+>
+  <svg
+    className="w-6 h-6 text-gray-400"
+    viewBox="0 0 10 10"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <polygon points="0,0 10,5 0,10" />
+  </svg>
+</button>
+
+      )}
+    </div>
+  );
+};
+
+
+
 
 
 
@@ -12,6 +99,33 @@ const Body = () => {
   const [checkedCategories, setCheckedCategories] = useState([]); // Store selected category IDs 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [subCategoriesData, setSubCategoriesData] = useState([]);
+  const [factoriesData, setFactoriesData] = useState([]);
+  const [checkedSubCategories, setCheckedSubCategories] = useState([]);
+  const [checkedFactories, setCheckedFactories] = useState([]);
+  const [checkedSizes, setCheckedSizes] = useState([]);
+  const [allSizes, setAllSizes] = useState([]);
+  const [allAvailableSizes, setAllAvailableSizes] = useState([]); // <-- Add this
+
+  // Fetch all sizes once on mount (unfiltered)
+  useEffect(() => {
+    const fetchAllSizes = async () => {
+      const res = await fetch(`/api/productsz1?page=1&limit=1000`); // adjust limit as needed
+      const data = await res.json();
+      const sizesSet = new Set();
+      if (data.products && Array.isArray(data.products)) {
+        data.products.forEach(prod => {
+          prod.color?.forEach(colorObj => {
+            colorObj.sizes?.forEach(sizeObj => {
+              if (sizeObj.size) sizesSet.add(sizeObj.size);
+            });
+          });
+        });
+      }
+      setAllAvailableSizes(Array.from(sizesSet));
+    };
+    fetchAllSizes();
+  }, []);
 
   const fetchProducts = async (pageNum = 1) => {
     const params = new URLSearchParams();
@@ -19,13 +133,30 @@ const Body = () => {
     params.append('page', pageNum);
     params.append('limit', 10);
 
-    checkedCategories.forEach(cat => params.append('category', cat));
+    checkedCategories.forEach(cat => params.append('cat', cat));
+    checkedSubCategories.forEach(sub => params.append('sub', sub));
+    checkedFactories.forEach(fac => params.append('brnd', fac));
+    checkedSizes.forEach(size => params.append('size', size));
 
-    const res = await fetch(`/api/productsz?${params.toString()}`);
+    const res = await fetch(`/api/productsz1?${params.toString()}`);
     const data = await res.json();
 
     setTemp(data.products);
     setTotalPages(data.totalPages);
+
+    // You can still update allSizes for filtered products if you want,
+    // but use allAvailableSizes for rendering checkboxes!
+    const sizesSet = new Set();
+    if (data.products && Array.isArray(data.products)) {
+      data.products.forEach(prod => {
+        prod.color?.forEach(colorObj => {
+          colorObj.sizes?.forEach(sizeObj => {
+            if (sizeObj.size) sizesSet.add(sizeObj.size);
+          });
+        });
+      });
+    }
+    setAllSizes(Array.from(sizesSet));
   };
 
 
@@ -91,11 +222,13 @@ const Body = () => {
 
   useEffect(() => {
     fetchCategories();
+    fetchSubCategories();
+    fetchFactories();
   }, []);
 
   useEffect(() => {
     fetchProducts(page);
-  }, [checkedCategories, page]);
+  }, [checkedCategories, checkedFactories, checkedSubCategories, checkedSizes, page]);
 
 
 
@@ -109,6 +242,26 @@ const Body = () => {
     }
   };
 
+  const fetchSubCategories = async () => {
+    try {
+      const response = await fetch("/api/sub");
+      const data = await response.json();
+      setSubCategoriesData(data);
+    } catch (error) {
+      console.error("Error fetching subcategories:", error);
+    }
+  };
+
+  const fetchFactories = async () => {
+    try {
+      const response = await fetch("/api/factory");
+      const data = await response.json();
+      setFactoriesData(data);
+    } catch (error) {
+      console.error("Error fetching factories:", error);
+    }
+  };
+
 
   const handleCheckboxChange = (categoryId) => {
     setPage(1);
@@ -119,23 +272,56 @@ const Body = () => {
     );
   };
 
+  const handleSubCategoryChange = (subCategoryId) => {
+    setPage(1);
+    setCheckedSubCategories((prev) =>
+      prev.includes(subCategoryId)
+        ? prev.filter((id) => id !== subCategoryId)
+        : [...prev, subCategoryId]
+    );
+  };
+
+  const handleFactoryChange = (factoryId) => {
+    setPage(1);
+    setCheckedFactories((prev) =>
+      prev.includes(factoryId)
+        ? prev.filter((id) => id !== factoryId)
+        : [...prev, factoryId]
+    );
+  };
+
+  const handleSizeChange = (size) => {
+    setPage(1);
+    setCheckedSizes((prev) =>
+      prev.includes(size)
+        ? prev.filter((s) => s !== size)
+        : [...prev, size]
+    );
+  };
+
+
+  useEffect(() => {
+    // Scroll to top whenever page changes
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
+
 
 
 
   return (
 
 
-    <> 
+    <>
 
       <div className="br_min-h-screen br_relative md:mt-20 mt-20">
 
         <header className="br_text-white  br_p-3 br_pt-11 md:br_py-20 br_flex md:br_justify-center">
           <div className="br_text-left md:br_max-w-[600px] lg:br_max-w-[800px] md:br_text-center br_flex br_flex-col br_gap-2  md:br_gap-4 md:br_items-center">
-            <h1 className="br_text-3xl md:br_text-4xl  myGray">
+            <h3 className="br_text-md md:br_text-md  myGray">
               Our Products
-            </h1>
+            </h3>
             <p className="br_text-base-sans-stretched md:br_text-lg-sans-stretched myGray">
-              Discover stylish products to elevate your personal and professional expression.
+              Discover the finest collection of detailed car model toys for every collector and enthusiast.
             </p>
           </div>
         </header>
@@ -217,6 +403,162 @@ const Body = () => {
               </details>
 
 
+              <details className="br_pl-4 md:br_pl-8 br_pr-4">
+                <summary className="br_list-none br_cursor-pointer [&::-webkit-details-marker]:br_hidden [&::marker]:br_hidden">
+                  <h3 className="br_border-solid br_border-0 br_border-b br_border-grey-300 br_text-white br_text-base-sans-bold-stretched br_pb-2 br_flex br_justify-between br_items-end br_pt-4 myNewC">
+                    SubCategory
+                    <div className="br_w-3 [details[open]_&]:br_rotate-180 br_transition-transform br_duration-200">
+                      <svg
+                        viewBox="0 0 11 6"
+                        width={11}
+                        height={6}
+                        className="br_stroke-none br_fill-current br_w-full br_h-full myBB"
+                      >
+                        <path
+                          className="st0"
+                          d="M5.4,4.4l4.5-4.2c0.2-0.3,0.7-0.3,0.9,0c0,0,0,0,0,0c0.3,0.3,0.3,0.7,0,1c0,0,0,0,0,0L5.9,5.8 C5.6,6.1,5.2,6.1,5,5.8L0.2,1.1c-0.3-0.3-0.3-0.7,0-0.9C0.4,0,0.8,0,1.1,0.2c0,0,0,0,0,0L5.4,4.4z"
+                        />
+                      </svg>
+                    </div>
+                  </h3>
+                </summary>
+                <div className="br_my-2 md:br_my-4 md:br_h-full br_w-full br_gap-x-5 br_columns-2 md:br_columns-1">
+                  {subCategoriesData.map((subCategory) => (
+                    <div
+                      key={subCategory.id}
+                      className="br_block br_relative br_max-w-full br_w-full br_py-2 br_break-inside-avoid md:br_inline-block md:br_overflow-hidden md:br_m-0 md:br_p-0"
+                      title={subCategory.name}
+                    >
+                      <label className="br_flex br_gap-4 br_cursor-pointer br_text-white br_text-base-sans-spaced br_py-1 md:br_py-2 myNewC">
+                        <input
+                          className="br_absolute br_h-0 br_w-0 br_opacity-0"
+                          type="checkbox"
+                          checked={checkedSubCategories.includes(subCategory.name)}
+                          onChange={() => handleSubCategoryChange(subCategory.name)}
+                        />
+                        <span className="br_shrink-0 br_relative br_h-[22px] br_w-[22px] br_border-[#4a4a4a] br_border-solid br_border br_rounded md:br_h-[18px] md:br_w-[18px]">
+                          <span className="br_h-full br_w-full br_text-white">
+                            <img
+                              src={
+                                checkedSubCategories.includes(subCategory.name)
+                                  ? "https://res.cloudinary.com/duppvjinz/image/upload/v1701685867/eprldb0uad9klcw2ki5z.png" // Checked
+                                  : "https://res.cloudinary.com/duppvjinz/image/upload/v1701541407/jhvrodq8u9e8vjlwe964.png" // Unchecked
+                              }
+                              alt=""
+                            />
+                          </span>
+                        </span>
+                        {subCategory.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </details>
+
+              <details className="br_pl-4 md:br_pl-8 br_pr-4">
+                <summary className="br_list-none br_cursor-pointer [&::-webkit-details-marker]:br_hidden [&::marker]:br_hidden">
+                  <h3 className="br_border-solid br_border-0 br_border-b br_border-grey-300 br_text-white br_text-base-sans-bold-stretched br_pb-2 br_flex br_justify-between br_items-end br_pt-4 myNewC">
+                    Factory
+                    <div className="br_w-3 [details[open]_&]:br_rotate-180 br_transition-transform br_duration-200">
+                      <svg
+                        viewBox="0 0 11 6"
+                        width={11}
+                        height={6}
+                        className="br_stroke-none br_fill-current br_w-full br_h-full myBB"
+                      >
+                        <path
+                          className="st0"
+                          d="M5.4,4.4l4.5-4.2c0.2-0.3,0.7-0.3,0.9,0c0,0,0,0,0,0c0.3,0.3,0.3,0.7,0,1c0,0,0,0,0,0L5.9,5.8 C5.6,6.1,5.2,6.1,5,5.8L0.2,1.1c-0.3-0.3-0.3-0.7,0-0.9C0.4,0,0.8,0,1.1,0.2c0,0,0,0,0,0L5.4,4.4z"
+                        />
+                      </svg>
+                    </div>
+                  </h3>
+                </summary>
+                <div className="br_my-2 md:br_my-4 md:br_h-full br_w-full br_gap-x-5 br_columns-2 md:br_columns-1">
+                  {factoriesData.map((factory) => (
+                    <div
+                      key={factory.id}
+                      className="br_block br_relative br_max-w-full br_w-full br_py-2 br_break-inside-avoid md:br_inline-block md:br_overflow-hidden md:br_m-0 md:br_p-0"
+                      title={factory.name}
+                    >
+                      <label className="br_flex br_gap-4 br_cursor-pointer br_text-white br_text-base-sans-spaced br_py-1 md:br_py-2 myNewC">
+                        <input
+                          className="br_absolute br_h-0 br_w-0 br_opacity-0"
+                          type="checkbox"
+                          checked={checkedFactories.includes(factory.name)}
+                          onChange={() => handleFactoryChange(factory.name)}
+                        />
+                        <span className="br_shrink-0 br_relative br_h-[22px] br_w-[22px] br_border-[#4a4a4a] br_border-solid br_border br_rounded md:br_h-[18px] md:br_w-[18px]">
+                          <span className="br_h-full br_w-full br_text-white">
+                            <img
+                              src={
+                                checkedFactories.includes(factory.name)
+                                  ? "https://res.cloudinary.com/duppvjinz/image/upload/v1701685867/eprldb0uad9klcw2ki5z.png" // Checked
+                                  : "https://res.cloudinary.com/duppvjinz/image/upload/v1701541407/jhvrodq8u9e8vjlwe964.png" // Unchecked
+                              }
+                              alt=""
+                            />
+                          </span>
+                        </span>
+                        {factory.name}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </details>
+
+              <details className="br_pl-4 md:br_pl-8 br_pr-4">
+                <summary className="br_list-none br_cursor-pointer [&::-webkit-details-marker]:br_hidden [&::marker]:br_hidden">
+                  <h3 className="br_border-solid br_border-0 br_border-b br_border-grey-300 br_text-white br_text-base-sans-bold-stretched br_pb-2 br_flex br_justify-between br_items-end br_pt-4 myNewC">
+                    Size
+                    <div className="br_w-3 [details[open]_&]:br_rotate-180 br_transition-transform br_duration-200">
+                      <svg
+                        viewBox="0 0 11 6"
+                        width={11}
+                        height={6}
+                        className="br_stroke-none br_fill-current br_w-full br_h-full myBB"
+                      >
+                        <path
+                          className="st0"
+                          d="M5.4,4.4l4.5-4.2c0.2-0.3,0.7-0.3,0.9,0c0,0,0,0,0,0c0.3,0.3,0.3,0.7,0,1c0,0,0,0,0,0L5.9,5.8 C5.6,6.1,5.2,6.1,5,5.8L0.2,1.1c-0.3-0.3-0.3-0.7,0-0.9C0.4,0,0.8,0,1.1,0.2c0,0,0,0,0,0L5.4,4.4z"
+                        />
+                      </svg>
+                    </div>
+                  </h3>
+                </summary>
+                <div className="br_my-2 md:br_my-4 md:br_h-full br_w-full br_gap-x-5 br_columns-2 md:br_columns-1">
+                  {allAvailableSizes.map((size) => (
+                    <div
+                      key={size}
+                      className="br_block br_relative br_max-w-full br_w-full br_py-2 br_break-inside-avoid md:br_inline-block md:br_overflow-hidden md:br_m-0 md:br_p-0"
+                      title={size}
+                    >
+                      <label className="br_flex br_gap-4 br_cursor-pointer br_text-white br_text-base-sans-spaced br_py-1 md:br_py-2 myNewC">
+                        <input
+                          className="br_absolute br_h-0 br_w-0 br_opacity-0"
+                          type="checkbox"
+                          checked={checkedSizes.includes(size)}
+                          onChange={() => handleSizeChange(size)}
+                        />
+                        <span className="br_shrink-0 br_relative br_h-[22px] br_w-[22px] br_border-[#4a4a4a] br_border-solid br_border br_rounded md:br_h-[18px] md:br_w-[18px]">
+                          <span className="br_h-full br_w-full br_text-white">
+                            <img
+                              src={
+                                checkedSizes.includes(size)
+                                  ? "https://res.cloudinary.com/duppvjinz/image/upload/v1701685867/eprldb0uad9klcw2ki5z.png"
+                                  : "https://res.cloudinary.com/duppvjinz/image/upload/v1701541407/jhvrodq8u9e8vjlwe964.png"
+                              }
+                              alt=""
+                            />
+                          </span>
+                        </span>
+                        {size}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </details>
+
             </div>
 
 
@@ -256,6 +598,8 @@ const Body = () => {
 
 
             <div className="br_@container">
+              
+<SlidingPagination page={page} totalPages={totalPages} setPage={setPage} />
               <div
                 className="br_group/tile-grid br_grid br_grid-flow-dense br_gap-1 br_py-1 br_grid-cols-2 sm:br_grid-cols-[repeat(auto-fill,minmax(250px,1fr))] sm:br_px-1 lg:br_grid-cols-[repeat(auto-fill,minmax(285px,1fr))] supports-[container-type]:sm:br_grid-cols-2 supports-[container-type]:sm:@[640px]:br_grid-cols-[repeat(auto-fill,minmax(250px,1fr))] supports-[container-type]:lg:@[1024px]:br_grid-cols-[repeat(auto-fill,minmax(285px,1fr))]"
 
@@ -270,97 +614,7 @@ const Body = () => {
 
                 {allTemp && allTemp.length > 0 ? (
                   allTemp.map((item, index) => (
-                    <a href={`/product?id=${item._id}`}  >
-                      <div
-                        key={item._id}
-                        className="br_grid br_grid-cols-1 supports-subgrid:br_row-span-4 supports-subgrid:br_grid-rows-[subgrid]"
-                      >
-                        <div className="relative inline-block w-full max-w-[300px] aspect-square">
-                          <img
-                            src={item.img[0]}
-                            alt="Default"
-                            className="w-full h-full object-cover object-center rounded"
-                          />
-
-                          {(
-                            (item.type === 'single' && parseInt(item.stock) === 0) ||
-                            (item.type === 'collection' &&
-                              item.color?.every(color =>
-                                color.sizes?.every(size => parseInt(size.qty) === 0)
-                              )
-                            )
-                          ) && (
-                              <div className="absolute inset-0 bg-gray-600 bg-opacity-70 text-white flex items-center justify-center text-lg font-bold z-10 rounded">
-                                Out of Stock
-                              </div>
-                            )}
-                        </div>
-
-
-
-
-                        <div className="Layout br_contents">
-                          <span className="br_contents br_edition-">
-                            <div className="br_grid br_grid-cols-1 br_grid-rows-[auto_auto_1fr_auto] supports-subgrid:br_row-span-4 supports-subgrid:br_grid-rows-[subgrid] initial:br_text-white apex:br_bg-[#4e4e4e] apex:br_text-white br_gap-2 br_pb-3 br_group/tile br_relative">
-                              <div
-                                style={{ textAlign: "center" }}
-                                className="initial:br_row-span-1 br_col-start-1 br_row-start-2 br_px-3 group-[.centered]/tile:br_justify-center group-[.centered]/tile:br_text-center"
-                              >
-                                <h3 className="myNewC br_text-base-sans-spaced br_line-clamp-2 sm:br_line-clamp-none edition:br_text-grey-500 edition:br_hidden first:edition:br_inline edition:before:br_content-['_–_'] apex:edition:br_text-grey-300">
-                                  <a
-                                    href={`/product?id=${item._id}`}
-                                    className="br_text-current br_no-underline myGray"
-                                    id="anchorNew"
-                                  >
-                                    {item.title}
-                                    <span
-                                      className="br_absolute br_inset-0 br_z-10"
-                                      aria-hidden="true"
-                                    />
-                                  </a>
-                                </h3>
-                                <div className="price-container br_inline-flex br_flex-wrap br_gap-x-2 br_items-baseline apex:br_text-white group-[.centered]/tile:br_justify-center">
-                                  <span className="font-light text-[13px] py-1 line-through text-gray-400 float-left  ">
-                                    {!item.color?.some(c => c.sizes?.length > 0) && (
-                                      <span>${parseFloat(item.price).toFixed(2)}</span>
-                                    )}
-
-                                  </span>
-                                  <span className="font-light text-[13px] py-1 rounded myRed float-left">
-                                    {/* ${parseFloat(item.discount).toFixed(2)} */}
-                                    {item.type === 'single' || (item.type === 'collection' && !item.color)
-                                      ? (`$${item.discount}` || 'N/A')
-                                      : (item.type === 'collection' && item.color && item.color.some(c => c.sizes?.length)
-                                        ? (() => {
-                                          // Flatten all sizes' prices
-                                          const prices = item.color
-                                            .flatMap(c => c.sizes || [])
-                                            .map(s => s.price);
-
-                                          if (prices.length === 0) return 'N/A';
-
-                                          const minPrice = Math.min(...prices);
-                                          const maxPrice = Math.max(...prices);
-
-                                          return minPrice === maxPrice
-                                            ? `$${minPrice.toFixed(2)}`
-                                            : `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
-                                        })()
-                                        : `$${item.discount}`
-                                      )
-                                    }
-                                    <span className="ml-1 text-xs">
-                                      25% off
-                                    </span>
-                                  </span>
-                                </div>
-                                <br />
-                              </div>
-                            </div>
-                          </span>
-                        </div>
-                      </div>
-                    </a>
+                    <CarCard temp={item} index={index} />
                   ))
                 ) : (
                   <div className="home___error-container">
@@ -370,53 +624,13 @@ const Body = () => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
               </div>
 
 
 
-              <div className="mt-4 mb-4 flex justify-center items-center space-x-4">
-                <button
-                  onClick={() => setPage(p => Math.max(p - 1, 1))}
-                  disabled={page === 1}
-                  className="px-4 py-2 rounded disabled:opacity-50 myGray text-3xl"
-                  style={{ color: '#999' }}
-                >
-                  &#8592;
-                </button>
+<SlidingPagination page={page} totalPages={totalPages} setPage={setPage} />
 
-                <span
-                  className="flex items-center justify-center text-white text-[11px]"
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    backgroundColor: '#1cd9ff',
-                    borderRadius: '50%',
-                  }}
-                >
-                  {page}
-                </span>
 
-                <button
-                  onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                  disabled={page === totalPages}
-                  className="px-4 py-2 rounded disabled:opacity-50 myGray text-3xl"
-                  style={{ color: '#999' }}
-                >
-                  &#8594;
-                </button>
-              </div>
 
 
             </div>

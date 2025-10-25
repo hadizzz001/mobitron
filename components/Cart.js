@@ -5,6 +5,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import CarCard5 from '../components/CarCard5';
+import { X } from 'lucide-react';
+
 
 const Cart = () => {
     const { cart, removeFromCart, quantities, subtotal, addToCart } = useCart();
@@ -121,20 +123,32 @@ useEffect(() => {
 
             <div className="Checkout">
                 <div id="cartid2" className="MiniCart_Cart" style={{ zIndex: "99999999" }}>
-                    <div className="MiniCart_Cart_Heading br_text-grey-500 mt-2">
+<div className="MiniCart_Cart_Heading br_text-grey-500 mt-2" style={{ position: 'relative' }}>
+  <span className="myGray">Your shopping bag</span>
+  
+  <button
+    className="MiniCart_Cart_CloseButton"
+    aria-label="Close"
+    onClick={handleClickc}
+    style={{
+      position: 'absolute',
+      right: '0.5rem',   // adjust spacing from right
+      top: '50%',
+      transform: 'translateY(-50%)',
+      background: 'transparent',
+      border: 'none',
+      padding: '0.25rem',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 10
+    }}
+  >
+    <X size={20} strokeWidth={2} color="#333" />
+  </button>
+</div>
 
-                        <span className="myGray">Your shopping bag</span>
-                        <button
-                            slot="close-button"
-                            className="MiniCart_Cart_CloseButton"
-                            aria-label="Close"
-                            id="cartid"
-                            style={{ zIndex: "99999999999" }}
-                            onClick={handleClickc}
-                        >
-                            <div className="MiniCart_Cart_CloseButtonIcon" />
-                        </button>
-                    </div>
 
                     <div data-render-if="!cart-is-empty" className="MiniCart_Cart_CheckoutCart">
                         <div className="Checkout_Cart_Wrapper Checkout_Cart_Wrapper--All">
@@ -219,9 +233,7 @@ useEffect(() => {
                             <a className="Common_Button Common_Button--short MiniCart_Cart_CtaButton" href="/checkout" rel="nofollow">
                                 <span>Go to checkout</span>
                             </a>
-
-                   
-
+ 
                         </div>
 
 

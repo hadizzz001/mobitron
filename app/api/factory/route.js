@@ -1,8 +1,7 @@
-import clientPromise from '../../../lib/mongodb'; // Adjust path as needed
+import clientPromise from '../../lib/mongodb'; // Adjust path as needed
 import { NextResponse } from 'next/server';
 
 export const revalidate = 10;
-export const dynamic = 'force-dynamic';
 
 // Handle OPTIONS request for CORS preflight
 export async function OPTIONS() {
@@ -16,21 +15,17 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET(request, { params }) {
-  const { category } = params;
-
+export async function GET() {
   try {
-    const client = await clientPromise;
-    const db = client.db('test');
-    const collection = db.collection('Product');
+    const client = await clientPromise; // Connect to MongoDB
+    const db = client.db('test'); // Replace with your database name
+    const collection = db.collection('Factory'); // Replace with your collection name
 
-    // Only return if category matches AND it's not "Pool Trays"
-    const data = await collection.find({
-      $and: [
-        { category },
-        { category: { $ne: 'Pool Trays' } }
-      ]
-    }).toArray();
+    // Fetch all documents and sort by 'id' ascending
+    const data = await collection
+      .find()
+      .sort({ id: 1 })
+      .toArray();
 
     return NextResponse.json(data, {
       headers: {

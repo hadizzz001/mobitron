@@ -8,18 +8,23 @@ import { useCart } from '../context/CartContext';
 import { useBooleanValue } from '../context/CartBoolContext';
 import QuantitySelector from '../../components/QuantitySelector';
 import OutOfStockComponent from '../../components/OutOfStockComponent';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
-import 'swiper/css';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Thumbs,Autoplay, Controller } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/thumbs";  
+
 
 const Page = () => {
+  const [mainSwiper, setMainSwiper] = useState(null); 
+  const [zoomSwiper, setZoomSwiper] = useState(null);
   const [translateXValue, setTranslateXValue] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const searchParams = useSearchParams();
   const search = searchParams.get('id');
   const custom = searchParams.get('custom');
   const imgg = searchParams.get('imgg');
-  let imgs, title, price, desc, cat, brand, discount, id, stock, type, color
+  let imgs, title, price, desc, cat, brand, discount, id, stock, type, color, sub, fact, views, orders;
   const { cart, addToCart, quantities } = useCart();
   const { isBooleanValue, setBooleanValue } = useBooleanValue();
   const isInCart = cart?.some((item) => item._id === search);
@@ -30,10 +35,9 @@ const Page = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [displayedPrice, setDisplayedPrice] = useState(null);
   const [hasSizes, setHasSizes] = useState(false);
-
-
-
-
+ const [thumbsSwiper, setThumbsSwiper] = useState(null);
+ const hasRun = useRef(false);
+ const [zoomedImg, setZoomedImg] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -54,6 +58,30 @@ const Page = () => {
 
 
 
+
+ useEffect(() => {
+    if (hasRun.current) return; // Prevent double execution
+    hasRun.current = true;
+
+    const incrementViews = async () => {
+      try {
+        const response = await fetch(`api/productsView/${search}`, {
+          method: 'PATCH',
+        });
+        const data = await response.json();
+        console.log("Updated data: ", data);
+      } catch (error) {
+        console.error("Error incrementing views:", error);
+      }
+    };
+
+    incrementViews();
+  }, [search]);
+
+
+
+
+
   if (allTemp1) {
     id = allTemp1._id;
     imgs = allTemp1.img;
@@ -66,6 +94,10 @@ const Page = () => {
     stock = allTemp1.stock;
     type = allTemp1.type;
     color = allTemp1.color;
+    sub = allTemp1.sub;
+    fact = allTemp1.factory;
+    views = allTemp1.views;
+    orders = allTemp1.orders;
   }
 
 
@@ -108,6 +140,10 @@ const Page = () => {
 
 
 
+
+
+
+
   function handleClickc() {
     var cartb = document.getElementById("cartid");
     var cartb2 = document.getElementById("cartid2");
@@ -121,6 +157,25 @@ const Page = () => {
     }
   };
 
+
+
+
+ 
+
+    const incrementViews123 = async () => {
+      try {
+        const response = await fetch(`api/productsView1/${search}`, {
+          method: 'PATCH',
+        });
+        const data = await response.json();
+        console.log("Updated data: ", data);
+      } catch (error) {
+        console.error("Error incrementing views:", error);
+      }
+    };
+
+    
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -138,6 +193,8 @@ const Page = () => {
 
     addToCart(allTemp1, quantity, selectedColor, selectedSize);
     handleClickc();
+incrementViews123(); 
+
   };
 
 
@@ -177,6 +234,40 @@ const Page = () => {
 
 
 
+  useEffect(() => {
+  if (allTemp1 && color && color.length > 0) {
+    // Set the first available color
+    const firstColorObj = availableColorsWithSizes?.[0] || availableColorsWithoutSizes?.[0];
+    if (firstColorObj) {
+      setSelectedColor(firstColorObj.color);
+
+      // If this color has sizes, set the first available size
+      if (firstColorObj.sizes && firstColorObj.sizes.length > 0) {
+        const firstSize = firstColorObj.sizes.find(s => s.qty > 0);
+        if (firstSize) {
+          setSelectedSize(firstSize.size);
+          setDisplayedPrice(firstSize.price);
+        }
+      } else {
+        // If no sizes, set the color price directly
+        setDisplayedPrice(firstColorObj.price ?? null);
+      }
+    }
+  }
+}, [allTemp1]);
+
+
+useEffect(() => {
+  if (mainSwiper && zoomSwiper) {
+    mainSwiper.controller.control = zoomSwiper;
+    zoomSwiper.controller.control = mainSwiper;
+  }
+}, [mainSwiper, zoomSwiper]);
+
+
+
+
+
 
   return (
     <>
@@ -185,6 +276,37 @@ const Page = () => {
           __html: "\n\n.uploadcare--widget__button, .uploadcare--widget__button:hover {\n\tpadding: 10px;\n\tbackground-color: #d7d7d7; \n  color: #212529;\n  width:100%;\n}\n\n.uploadcare--widget__button:hover {\n\tbackground-color: #c1c1c1;\n  \n}\n\n\n"
         }}
       />
+
+      {/* Zoom Modal */}
+      {zoomedImg && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80"
+          onClick={() => setZoomedImg(null)}
+          style={{ cursor: "zoom-out", zIndex: 9999 }} // Increased z-index here
+        >
+<Swiper 
+  pagination={{ clickable: true }}
+  spaceBetween={10}
+  slidesPerView={1}
+  onClick={e => e.stopPropagation()}
+  className="w-full max-w-[90vw] max-h-[90vh]"
+        modules={[Pagination, Controller]}
+      onSwiper={setZoomSwiper}  // ✅ Capture zoom swiper
+      controller={{ control: mainSwiper }} // ✅ Sync both!
+>
+  {imgs.map((item, idx) => (
+    <SwiperSlide key={idx} className="flex justify-center items-center">
+      <img
+        src={item.replace("/upload/", "/upload/q_80/")}
+        alt=""
+        className="max-w-[90vw] max-h-[90vh] object-contain"
+      />
+    </SwiperSlide>
+  ))}
+</Swiper>
+
+        </div>
+      )}
 
       <div className="ProductDetailWrapper  md:mt-20  mt-20">
         <div className="BreadcrumbsWrapper">
@@ -196,252 +318,267 @@ const Page = () => {
             <div className="Layout br_contents">
               <unsafe-html style={{ display: "none" }} />
               <events-enabled data-events="custom.product.view" />
-              <div className="Layout_TwoColumns br_edition-">
-                <section style={{ position: "relative" }}>
-                  <span className="ProvidersIfSelectedProductMatchesFilter">
-                    <div className="HtmlProductGallery">
-                      <div className="HtmlProductGallery_GalleryWrapper">
-                        <div className="HtmlProductInfiniteGallery" id="InfiniteGallery0" style={{ width: "auto", height: "100%" }}>
-                          <style type="text/css" dangerouslySetInnerHTML={{
-                            __html: "#InfiniteGallery0 .HtmlProductInfiniteGallery { }#InfiniteGallery0 .HtmlProductInfiniteGallery__Wrapper { position:relative;overflow:hidden;width:100%;height:100%}#InfiniteGallery0 .HtmlProductInfiniteGallery__Slides { position:absolute;top:0;width:1200%;height:100%;display:grid;grid-template-columns:repeat(12, 1fr);transition:transform 300ms ease;cursor:grab}#InfiniteGallery0 .HtmlProductInfiniteGallery__Slides--dragging { transition:none}#InfiniteGallery0 .HtmlProductInfiniteGallery__Slides_Slide { max-width:100%;max-height:100%;overflow:hidden;position:relative;user-drag:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none}"
-                          }} />
-                          <div className="HtmlProductInfiniteGallery__Wrapper">
-                            <div className="HtmlProductInfiniteGallery__Slides " style={{ transform: `translateX(${translateXValue}%)` }}>
-                              {imgs && imgs?.length > 0 ? (
-                                imgs.map((item) => (
-                                  <div>
-                                    <div className="HtmlProductInfiniteGallery__Slides_Slide">
-                                      <div className="Slide Slide--image">
-                                        <img src={"" + item} style={{ maxWidth: "100%", height: "auto" }} />
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))
-                              ) : (
-                                <div className='container'>
-                                  <h2 className='text-black text-xl dont-bold'>...</h2>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="HtmlProductGallery_Thumbnails">
-                        {imgs && imgs?.length > 0 ? (
-                          imgs.map((item, idx) => (
-                            <button onClick={() => handleClick(idx)} className="Thumbnail Thumbnail--image">
-                              <img src={"" + item} />
-                            </button>
-                          ))
-                        ) : (
-                          <div className='container'>
-                            <h2 className='text-black text-xl dont-bold'>...</h2>
-                          </div>
-                        )}
-                      </div>
+              <div className=" container">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      {/* LEFT: Swipe gallery */}
+<div className="w-full">
+  {imgs && imgs.length > 0 ? (
+    <>
+      {/* Main Swiper */}
+      <Swiper 
+        pagination={{ clickable: true }}
+        spaceBetween={10}
+        slidesPerView={1}
+        thumbs={{ swiper: thumbsSwiper }}
+        className="rounded-lg overflow-hidden"
+          modules={[Pagination, Thumbs, Controller]}
+  onSwiper={setMainSwiper}   // ✅ Capture instance
+  controller={{ control: zoomSwiper }} // ✅ Link to zoom swiper later
+      >
+        {imgs.map((item, idx) => (
+          <SwiperSlide key={idx} className="flex justify-center items-center  ">
+            <div className="w-full aspect-square flex justify-center items-center">
+              <img
+                src={item.replace("/upload/", "/upload/q_25/")}
+                alt=""
+                className="w-full h-full object-contain cursor-zoom-in"
+                onClick={() => setZoomedImg(item.replace("/upload/", "/upload/q_80/"))}
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Thumbnails Swiper */}
+      <Swiper
+        onSwiper={setThumbsSwiper}
+        modules={[Thumbs]}
+        spaceBetween={10}
+        slidesPerView={4}
+        watchSlidesProgress
+        className="mt-3"
+      >
+        {imgs.map((item, idx) => (
+          <SwiperSlide key={idx} className="cursor-pointer">
+            <div className="w-full aspect-square overflow-hidden rounded-md border border-gray-300">
+              <img
+                src={item.replace("/upload/", "/upload/q_25,w_100/")}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </>
+  ) : (
+    <div className="text-gray-600">No images available</div>
+  )}
+</div>
+
+
+      {/* RIGHT: ProductSelector (your data block) */}
+      <section className="ProductSelector">
+        <span className="ProvidersSingleProduct--selected">
+          <h4 className="myGray">
+            {title}
+            <span
+              className="ProductSelector_EditionLabel"
+              style={{ margin: "0 0 0 3px" }}
+            />
+          </h4>
+          <p className="mb-2 myGray">Category: {cat}</p>
+          <p className="mb-2 myGray">Subcategory: {sub}</p>
+          <p className="mb-2 myGray">Factory: {fact}</p>
+          <p className="mb-2 myGray">Views: {views}</p>
+          <p className="mb-2 myGray">Orders: {orders}</p>
+        </span>
+
+        <div className="ApexPriceAndFreeShippingWrapper">
+          <div>
+            <div className="FreeShippingMessage FreeShippingMessage--empty" />
+          </div>
+        </div>
+
+        <hr />
+
+        <div className="ProductSelector_IntroBlurb">
+          {/* --- your color/size logic --- */}
+          {isCollection && (
+            <div className="mb-4">
+              <h2 className="color-label myGray">Choose a Color:</h2>
+              <div className="color-options">
+                {availableColorsWithSizes?.map((c, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      setSelectedColor(c.color);
+                      setSelectedSize(null);
+                      setDisplayedPrice(null);
+                    }}
+                    className={`color-circle ${
+                      selectedColor === c.color ? "selected" : ""
+                    }`}
+                    style={{ backgroundColor: c.color }}
+                    title={`${c.color}`}
+                  />
+                ))}
+              </div>
+
+              {!selectedColor && (
+                <p className="error-message">Please select a color.</p>
+              )}
+
+              {selectedColor &&
+                availableColorsWithSizes.some(
+                  (c) => c.color === selectedColor
+                ) && (
+                  <div className="mb-4">
+                    <h2 className="size-label">Choose a Size:</h2>
+                    <div className="size-options">
+                      {availableColorsWithSizes
+                        .find((c) => c.color === selectedColor)
+                        ?.sizes?.filter((s) => s.qty > 0)
+                        ?.map((s, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setSelectedSize(s.size);
+                              setDisplayedPrice(s.price);
+                            }}
+                            className={`px-3 py-1 m-1 border rounded ${
+                              selectedSize === s.size
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-100"
+                            } myGray`}
+                          >
+                            {s.size}
+                          </button>
+                        ))}
                     </div>
-                  </span>
-                </section>
-                <section className="ProductSelector">
-                  <span className="ProvidersSingleProduct--selected">
-                    <h1 className='myGray'>
-                      {title}
-                      <span className="ProductSelector_EditionLabel" style={{ margin: "0 0 0 3px" }} />
-                    </h1>
-                    <p className='mb-2 myGray'>
-                      Category: {cat}
-                    </p>
-
-                  </span>
-                  <div className="ApexPriceAndFreeShippingWrapper">
-
-                    <div>
-                      <div className="FreeShippingMessage FreeShippingMessage--empty" />
-                    </div>
                   </div>
-                  <hr />
-                  <div className="ProductSelector_IntroBlurb">
+                )}
 
-
-                    {isCollection && (
-                      <div className="mb-4">
-                        <h2 className="color-label myGray">Choose a Color:</h2>
-                        <div className="color-options">
-                          {availableColorsWithSizes?.map((c, index) => (
-                            <div
-                              key={index}
-                              onClick={() => {
-                                setSelectedColor(c.color);
-                                setSelectedSize(null);
-                                setDisplayedPrice(null);
-                              }}
-                              className={`color-circle ${selectedColor === c.color ? 'selected' : ''}`}
-                              style={{ backgroundColor: c.color }}
-                              title={`${c.color}`}
-                            />
-                          ))}
-                        </div>
-
-                        {!selectedColor && <p className="error-message">Please select a color.</p>}
-
-                        {selectedColor && availableColorsWithSizes.some(c => c.color === selectedColor) && (
-                          <div className="mb-4">
-                            <h2 className="size-label">Choose a Size:</h2>
-                            <div className="size-options">
-                              {availableColorsWithSizes
-                                .find((c) => c.color === selectedColor)
-                                ?.sizes?.filter((s) => s.qty > 0)
-                                ?.map((s, idx) => (
-                                  <button
-                                    key={idx}
-                                    onClick={() => {
-                                      setSelectedSize(s.size);
-                                      setDisplayedPrice(s.price);
-                                    }}
-                                    className={`px-3 py-1 m-1 border rounded ${selectedSize === s.size ? 'bg-blue-500 text-white' : 'bg-gray-100'
-                                      } myGray`}
-                                  >
-                                    {s.size}
-                                  </button>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {availableColorsWithoutSizes?.length > 0 && (
-                          <div className="mt-4">
-                            <h2 className="color-label myGray">Other Colors:</h2>
-                            <div className="color-options">
-                              {availableColorsWithoutSizes?.map((c, index) => (
-                                <div
-                                  key={index}
-                                  onClick={() => {
-                                    setSelectedColor(c.color);
-                                    setSelectedSize(null);
-                                    setDisplayedPrice(c.price ?? null);
-                                  }}
-                                  className={`color-circle ${selectedColor === c.color ? 'selected' : ''}`}
-                                  style={{ backgroundColor: c.color }}
-                                  title={`${c.color}`}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-
-
-
-
-
-
-
-
-
-
-                    {hasSizes ? (
-                      selectedSize ? (
-                        <div className="flex items-center space-x-2">
-                          <h1 className="mb-2 myGray line-through font-bold text-lg">
-                            ${(parseFloat(displayedPrice) * 1.25).toFixed(2)}
-                          </h1>
-
-                          <h1 className="mb-2 myRed font-bold text-lg">
-                            ${displayedPrice}
-                            <span className="ml-1 text-sm">
-                              25% off
-                            </span>
-                          </h1>
-                        </div>
-                      ) : (
-                        <></>
-                      )
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <h1 className="mb-2 myGray line-through font-bold text-lg">${parseFloat(price).toFixed(2)}</h1>
-                        <h1 className="mb-2 myRed font-bold text-lg">
-                          ${discount}
-                          <span className="ml-1 text-sm">
-                            25% off
-                          </span>
-                        </h1>
-                      </div>
-                    )}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+              {availableColorsWithoutSizes?.length > 0 && (
+                <div className="mt-4">
+                  <h2 className="color-label myGray">Other Colors:</h2>
+                  <div className="color-options">
+                    {availableColorsWithoutSizes?.map((c, index) => (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          setSelectedColor(c.color);
+                          setSelectedSize(null);
+                          setDisplayedPrice(c.price ?? null);
+                        }}
+                        className={`color-circle ${
+                          selectedColor === c.color ? "selected" : ""
+                        }`}
+                        style={{ backgroundColor: c.color }}
+                        title={`${c.color}`}
+                      />
+                    ))}
                   </div>
-                  <div className="bagsFeaturesGrid__gridWrapper">
-                    {isInCart ? (
-                      <>
-                        <p style={{ color: "#222", textAlign: "center", fontSize: "2em", fontWeight: "bolder" }}>It's In Bag!</p>
-                        <div className="">
-                          <div className=""></div>
-                          <div className="">
-                            <span className="ProvidersSingleProduct--selected">
-                              <button type="button" className="AddToCart HtmlProductAddToCart" style={{ borderRadius: "0" }} onClick={gotocart} >
-                                <span>CHECKOUT NOW</span>
-                              </button>
-                            </span>
-                          </div>
-                          <div className=""></div>
-                        </div>
-                        <br />
-                      </>
-                    ) : (
-                      <div>
+                </div>
+              )}
+            </div>
+          )}
 
-                        <form onSubmit={handleSubmit}>
-                          <div className="">
-                            <QuantitySelector initialQty={quantity} onChange={setQuantity} productId={id} type={type} selectedColor={selectedColor} selectedSize={selectedSize} />
-                            <div className=""></div>
-                            <div className="">
-                              <span className="ProvidersSingleProduct--selected">
-                                {!isOutOfStock ? (
-                                  <button
-                                    type="submit"
-                                    className="AddToCart HtmlProductAddToCart"
-                                    style={{ borderRadius: "0" }}
-                                    disabled={isCollection && !selectedColor}
-                                  >
-                                    <span>ADD TO BAG</span>
-                                  </button>
-                                ) : (
-                                  <OutOfStockComponent itemName={title} />
-                                )}
+          {/* --- price logic --- */}
+          {hasSizes ? (
+            selectedSize ? (
+              <div className="flex items-center space-x-2">
+                <h2 className="mb-2 myGray line-through myPrice123">
+                  ${(parseFloat(displayedPrice) * 1.25).toFixed(2)}
+                </h2>
+                <h3 className="mb-2 myRed font-bold myPrice123">
+                  ${displayedPrice}
+                </h3>
+              </div>
+            ) : (
+              <></>
+            )
+          ) : (
+            <div className="flex items-center space-x-2">
+                               <h2 className="mb-2 myGray line-through myPrice123">
+                  ${(parseFloat(discount) * 1.25).toFixed(2)}
+                </h2>
+              <h3 className="mb-2 myRed font-bold myPrice123">
+                ${discount}
+              </h3>
+            </div>
+          )}
+        </div>
 
-                              </span>
-                            </div>
-                            <div className=""></div>
-                          </div>
-                        </form>
-                    <span className="ProvidersIfSelectedProductMatchesFilter">
-                      <p
-                        className='myGray'
-                        dangerouslySetInnerHTML={{ __html: desc }}
-                      /><br />
-                    </span>
-                      </div>
-                    )}
-                    <br />
-                  </div>
-                  <span className="ProvidersIfSelectedProductMatchesFilter">
-                  </span>
+        {/* --- add to cart / in bag --- */}
+        <div className="bagsFeaturesGrid__gridWrapper">
+          {isInCart ? (
+            <>
+              <p
+                style={{
+                  color: "#222",
+                  textAlign: "center",
+                  fontSize: "2em",
+                  fontWeight: "bolder",
+                }}
+              >
+                It's In Bag!
+              </p>
+              <div>
+                <span className="ProvidersSingleProduct--selected">
+                  <button
+                    type="button"
+                    className="AddToCart HtmlProductAddToCart"
+                    style={{ borderRadius: "0" }}
+                    onClick={gotocart}
+                  >
+                    <span>CHECKOUT NOW</span>
+                  </button>
+                </span>
+              </div>
+              <br />
+            </>
+          ) : (
+            <div>
+              <form onSubmit={handleSubmit}>
+                <QuantitySelector
+                  initialQty={quantity}
+                  onChange={setQuantity}
+                  productId={id}
+                  type={type}
+                  selectedColor={selectedColor}
+                  selectedSize={selectedSize}
+                />
 
-                </section>
+                <span className="ProvidersSingleProduct--selected">
+                  {!isOutOfStock ? (
+                    <button
+                      type="submit"
+                      className="AddToCart HtmlProductAddToCart"
+                      style={{ borderRadius: "0" }}
+                      disabled={isCollection && !selectedColor}
+                    >
+                      <span>ADD TO BAG</span>
+                    </button>
+                  ) : (
+                    <OutOfStockComponent itemName={title} />
+                  )}
+                </span>
+              </form>
+
+              <span className="ProvidersIfSelectedProductMatchesFilter">
+                <p
+                  className="myGray"
+                  dangerouslySetInnerHTML={{ __html: desc }}
+                />
+                <br />
+              </span>
+            </div>
+          )}
+          <br />
+        </div>
+      </section>
+    </div>
               </div>
               <span className="ProvidersIfSelectedProductMatchesFilter">
                 <content-block slug="product-page-wssb">
@@ -468,8 +605,8 @@ const Page = () => {
                           },
                         }}>
                           <div className='home__cars-wrapper'>
-                            {allTemp2.map((temp) => (
-                              <SwiperSlide key={temp._id}><CarCard temp={temp} /></SwiperSlide>
+                            {allTemp2.map((temp, index) => (
+                              <SwiperSlide key={temp._id}><CarCard temp={temp} index={index} /></SwiperSlide>
                             ))}
                           </div>
                         </Swiper>

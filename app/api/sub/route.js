@@ -1,31 +1,18 @@
-import clientPromise from '../../lib/mongodb'; // Adjust path as needed
+import clientPromise from '../../lib/mongodb';
 import { NextResponse } from 'next/server';
 
 export const revalidate = 10;
 
-// Handle OPTIONS request for CORS preflight
-export async function OPTIONS() {
-  return new NextResponse(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
-}
-
-export async function GET() { 
+export async function GET() {
   try {
     const client = await clientPromise; // Connect to MongoDB
-    const db = client.db('test'); // Replace with your database name
-    const collection = db.collection('Product'); // Replace with your collection name
+    const db = client.db('test'); // Database name
+    const collection = db.collection('Sub'); // Collection name
 
-    const data = await collection.find({  
-      arrival: "yes" 
-    })
-    .sort({ _id: -1 }) // Sort by newest first
-    .toArray(); // Fetch all documents
+    const data = await collection
+      .find() // Fetch all documents
+      .sort({ id: 1 }) // Sort by id ascending
+      .toArray();
 
     return NextResponse.json(data, {
       headers: {
@@ -48,4 +35,16 @@ export async function GET() {
       }
     );
   }
+}
+
+// Handle OPTIONS preflight
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
 }

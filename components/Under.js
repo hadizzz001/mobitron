@@ -1,23 +1,44 @@
-// app/page.tsx or components/ImageGrid.tsx
+'use client';
+import { useState, useEffect } from 'react';
+
 export default function ImageGrid() {
-  const images = [
-    'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761234990/84d0566c343c668cc1cedcff7b955d5d_b1rn8n.jpg',
-    'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761234990/30b340a970e9f260cb0112be41e8ca54_jue9hm.jpg',
-    'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761234990/iphone_air__f0t56fef3oey_large_w4hvif.jpg',
-    'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761234990/10df69847fecd08c33ef700892b1ef3e_qs0iky.jpg',
-  ];
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const res = await fetch('/api/banner1');
+        const data = await res.json();
+
+        // Take the first object in the array and get its 'img' array
+        if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0].img)) {
+          setImages(data[0].img);
+        } else {
+          console.error('No images found in API response:', data);
+        }
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4">
-      {images.map((src, index) => (
-        <div key={index} className="w-full aspect-[4/3] overflow-hidden">
-          <img
-            src={src}
-            alt={`Image ${index + 1}`}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      ))}
+      {images.length > 0 ? (
+        images.map((src, index) => (
+          <div key={index} className="w-full aspect-[4/3] overflow-hidden">
+            <img
+              src={src}
+              alt={`Image ${index + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        ))
+      ) : (
+        <p className="col-span-4 text-center text-gray-500">Loading images...</p>
+      )}
     </div>
   );
 }

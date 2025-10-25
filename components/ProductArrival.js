@@ -1,124 +1,127 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function ProductGrid() {
-  const productsData = [
-    {
-      rowTitle: 'Top Deals',
-      items: [
-        {
-          id: 1,
-          title: 'Apple iPhone 15 Pro 256GB – Natural Titanium Edition',
-          category: 'Smartphone',
-          img: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761246662/Apple-iPhone-15-Pro-lineup-natural-titanium_instagram-841x1024-removebg-preview_jbfabj.png',
-          price: '999',
-          discount: '1099',
-        },
-        {
-          id: 2,
-          title: 'Samsung Galaxy S24 Ultra 5G 256GB – Titanium Gray',
-          category: 'Android',
-          img: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761246662/1200Wx1200H-SM-S721BZKCMEA-SG-removebg-preview_nan0mi.png',
-          price: '899',
-          discount: '999',
-        },
-        {
-          id: 3,
-          title: 'Google Pixel 8 Pro 128GB Obsidian – AI Photography',
-          category: 'Google',
-          img: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761246662/1200Wx1200H-SM-S721BZKCMEA-SG-removebg-preview_nan0mi.png',
-          price: '799',
-          discount: '899',
-        },
-        {
-          id: 4,
-          title: 'OnePlus 12 256GB – Glacial Green AMOLED Display',
-          category: 'Android',
-          img: 'https://res.cloudinary.com/dqjtmau0a/image/upload/v1761246662/Apple-iPhone-15-Pro-lineup-natural-titanium_instagram-841x1024-removebg-preview_jbfabj.png',
-          price: '749',
-          discount: '899',
-        },
-      ],
-    },
-  ];
+  const [productsData, setProductsData] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+
+        setProductsData([
+          {
+            rowTitle: 'Top Deals',
+            items: data.slice(0, 4).map(product => {
+              let priceDisplay = '';
+              let discountDisplay = '';
+
+              if (product.type === 'collection' && product.color) {
+                const allPrices = product.color.flatMap(c =>
+                  c.sizes.map(s => s.price)
+                );
+                const minPrice = Math.min(...allPrices);
+                const maxPrice = Math.max(...allPrices);
+                priceDisplay = minPrice === maxPrice ? `${minPrice}` : `${minPrice} - ${maxPrice}`;
+              } else {
+                const discount = parseFloat(product.discount || product.price);
+                const originalPrice = (discount * 1.25).toFixed(2);
+                priceDisplay = discount.toFixed(2);
+                discountDisplay = originalPrice;
+              }
+
+              return {
+                id: product._id,
+                title: product.title,
+                category: product.category,
+                img: product.img[0],
+                price: priceDisplay,
+                discount: discountDisplay,
+                type: product.type,
+              };
+            }),
+          },
+        ]);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <div style={{ padding: '30px' }}>
       {productsData.map((section) => (
-        <div key={section.rowTitle}  >
-          <p
-            style={{
-              fontSize: '28px',
-              fontWeight: 'bold',
-              marginBottom: '20px',
-              color: '#222',
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
+        <div key={section.rowTitle}>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 'bold',
+            marginBottom: '20px',
+            color: '#222',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+          }}>
             {section.rowTitle}
           </p>
 
           <div className="product-grid">
-{section.items.map((product, index) => (
-  <div
-    key={product.id}
-    className="product-card"
-    style={{
-      textAlign: 'left',
-      position: 'relative',
-    }}
-  >
-    {/* Only show SALE for the first item */}
-    {index === 0 && (
-      <div
-        style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          width: '60px',
-          height: '60px',
-          backgroundColor: 'red',
-          color: 'white',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 'bold',
-          fontSize: '14px',
-          zIndex: 1,
-        }}
-      >
-        SALE
-      </div>
-    )}
+            {section.items.map((product, index) => (
+              <div
+                key={product.id}
+                className="product-card"
+                style={{ textAlign: 'left', position: 'relative', cursor: 'pointer' }}
+                onClick={() => router.push(`/product?id=${product.id}`)}
+              >
+                {index === 0 && product.type === 'single' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '10px',
+                    left: '10px',
+                    width: '60px',
+                    height: '60px',
+                    backgroundColor: 'red',
+                    color: 'white',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    zIndex: 1,
+                  }}>
+                    SALE
+                  </div>
+                )}
 
-    <div className="img-box">
-      <img
-        src={product.img}
-        alt={product.title}
-        style={{
-          maxHeight: '100%',
-          width: 'auto',
-          objectFit: 'contain',
-        }}
-      />
-    </div>
+                <div className="img-box">
+                  <img
+                    src={product.img}
+                    alt={product.title}
+                    style={{ maxHeight: '100%', width: 'auto', objectFit: 'contain' }}
+                  />
+                </div>
 
-    <div className="product-info">
-      <p className="category">{product.category}</p>
-      <p className="title">{product.title}</p>
+                <div className="product-info">
+                  <p className="category">{product.category}</p>
+                  <p className="title">{product.title}</p>
 
-      <div className="price-row">
-        <p className="price">
-          <span className="currency">$</span>
-          {product.price}
-        </p>
-        <p className="discount">${product.discount}</p>
-      </div>
-    </div>
-  </div>
-))}
-
+                  <div className="price-row">
+                    <p className="price">
+                      <span className="currency">$</span>
+                      {product.price}
+                    </p>
+                    {product.type === 'single' && product.discount && (
+                      <p className="discount">${product.discount}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           <style jsx>{`
@@ -183,12 +186,11 @@ export default function ProductGrid() {
               margin: 0;
             }
 
-            /* MOBILE FIXES */
             @media (max-width: 768px) {
               .product-grid {
                 display: flex;
                 overflow-x: auto;
-                gap: 12px; /* smaller gap */
+                gap: 12px;
                 scroll-snap-type: x mandatory;
                 -webkit-overflow-scrolling: touch;
               }
@@ -199,11 +201,11 @@ export default function ProductGrid() {
               }
 
               .img-box {
-                height: 180px; /* smaller image height */
+                height: 180px;
               }
 
               .product-info {
-                margin-top: 6px; /* reduce space between image & text */
+                margin-top: 6px;
               }
 
               .title {

@@ -2,25 +2,54 @@
 
 import React, { useState, useEffect } from "react";
 
-const images = [
-  "https://res.cloudinary.com/dqjtmau0a/image/upload/v1761245606/Galaxy-S24-Ultra-web-product-page_d7srns.jpg",
-  "https://res.cloudinary.com/dqjtmau0a/image/upload/v1761147490/1440x520_szzyeh.webp",
-];
-
 const MyCarousel = () => {
+  const [images, setImages] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Fetch banners from API
   useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch("/api/banner");
+        const data = await res.json();
+
+        // Ensure you only use entries that contain valid image URLs
+        const validImages = data
+          .filter((item) => item?.img && item.img.length > 0)
+          .flatMap((item) => item.img);
+
+        setImages(validImages);
+      } catch (error) {
+        console.error("Error fetching banners:", error);
+      }
+    };
+
+    fetchBanners();
+  }, []);
+
+  // Auto-slide effect
+  useEffect(() => {
+    if (images.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
     }, 5000);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [images]);
+
+  if (images.length === 0) {
+    return (
+      <div className="w-full h-[400px] flex items-center justify-center bg-gray-200">
+        Loading banners...
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full overflow-hidden">
-      {/* Set fixed aspect ratio (16:9) */}
-      <div className="relative w-full pt-[56.25%]"> 
+      {/* Fixed aspect ratio (16:9) */}
+      <div className="relative w-full pt-[56.25%]">
         {images.map((img, index) => (
           <img
             key={index}

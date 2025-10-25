@@ -106,7 +106,7 @@ const Footer = () => {
                         className="SiteFooterSitemap__social column"
                     >
                         <ul>
-                            <li>
+                            {/* <li>
                                 <a
                                     target="_blank"
                                     href="https://www.tiktok.com/@mobitron"
@@ -131,11 +131,11 @@ const Footer = () => {
 
 
                                 </a>
-                            </li>
+                            </li> */}
                             <li>
                                 <a
                                     target="_blank"
-                                    href="https://www.instagram.com/mobitron"
+                                    href="https://www.instagram.com/mobitron.lb"
                                     data-auto-id="true"
                                     id="page-footer-http-www-instagram-com-bellroy-1"
                                 >
@@ -165,7 +165,7 @@ const Footer = () => {
                             <li>
                                 <a
                                     target="_blank"
-                                    href="https://www.facebook.com/profile.php?id=61562194462476"
+                                    href="https://www.facebook.com/share/1BGctQi9Xy/"
                                     data-auto-id="true"
                                     id="page-footer-https-www-facebook-com-bellroy-official-1"
                                 >
@@ -186,7 +186,7 @@ const Footer = () => {
                             <li>
                                 <a
                                     target="_blank"
-                                    href="https://wa.me/96176419884"
+                                    href="https://wa.me/96171117587"
                                     data-auto-id="true"
                                     id="page-footer-https-www-youtube-com-channel-ucy6vodc_wyzj4rlslixgp1q-1"
                                 >

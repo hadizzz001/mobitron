@@ -645,7 +645,7 @@
  }
 
  .myBB {
-   color: #1cd9ff !important;
+   color: #222 !important;
  }
 
  .myBB3 {
@@ -739,7 +739,7 @@
  }
 
  .myNewC {
-   color: #1cd9ff !important;
+   color: #222 !important;
  }
 
  @media (min-width: 1200px) {
@@ -1073,3 +1073,12 @@
 }
 
  
+
+nav a{
+  color: #222 !important;
+}
+
+
+nav a:hover{
+  color: #555 !important;
+}
