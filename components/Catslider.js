@@ -31,7 +31,7 @@ export default function CategoriesRow() {
       try {
         const res = await fetch('/api/brand');
         const data = await res.json();
-        setBrands(data); // [{ name, img: [url] }]
+        setBrands(data);
       } catch (error) {
         console.error('Failed to fetch brands:', error);
       }
@@ -39,11 +39,11 @@ export default function CategoriesRow() {
     fetchBrands();
   }, []);
 
-  // Fetch all products
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/products');
+        const res = await fetch('/api/products');
         const data = await res.json();
         setProducts(data);
       } catch (error) {
@@ -87,7 +87,6 @@ export default function CategoriesRow() {
     router.push(`/search?sub=${encodeURIComponent(sub)}`);
   };
 
-  // Helper: find brand image by name
   const getBrandImage = (brandName) => {
     const brand = brands.find(
       (b) => b.name.toLowerCase() === brandName.toLowerCase()
@@ -112,7 +111,7 @@ export default function CategoriesRow() {
             {cat.name}
           </span>
 
-          {/* --- Dropdown for brands --- */}
+          {/* Dropdown for brands */}
           {openCategory === cat.name && (
             <div className="dropdown">
               {getBrandsByCategory(cat.name).map((brand, i) => {
@@ -121,7 +120,10 @@ export default function CategoriesRow() {
                   <div key={i} className="dropdown-item">
                     <div
                       className="brand-name"
-                      onClick={() => handleBrandClick(brand)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // ✅ prevents closing on mobile
+                        handleBrandClick(brand);
+                      }}
                     >
                       {brandImg && (
                         <img
@@ -134,9 +136,12 @@ export default function CategoriesRow() {
                       <span>{brand}</span>
                     </div>
 
-                    {/* --- Subcategories --- */}
+                    {/* Subcategories */}
                     {openBrand === brand && (
-                      <div className="sub-dropdown">
+                      <div
+                        className="sub-dropdown"
+                        onClick={(e) => e.stopPropagation()} // ✅ keeps dropdown open on tap
+                      >
                         {getSubsByCategoryAndBrand(cat.name, brand).map(
                           (sub, j) => (
                             <div
@@ -161,14 +166,27 @@ export default function CategoriesRow() {
       <style jsx>{`
         .categories-container {
           display: flex;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 4rem;
-          padding: 1rem 0;
+          flex-wrap: nowrap;
+          justify-content: flex-start;
+          gap: 2rem;
+          padding: 1rem;
           background-color: #fff;
+          overflow-x: auto;
+          scrollbar-width: thin;
+          -webkit-overflow-scrolling: touch; /* ✅ smooth scroll on mobile */
+        }
+
+        .categories-container::-webkit-scrollbar {
+          height: 6px;
+        }
+
+        .categories-container::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.3);
+          border-radius: 3px;
         }
 
         .category-item {
+          flex: 0 0 auto;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -178,8 +196,8 @@ export default function CategoriesRow() {
           transition: transform 0.3s ease;
         }
 
-        .category-item:hover {
-          transform: scale(1.08);
+        .category-item:active {
+          transform: scale(0.97);
         }
 
         .category-image {
@@ -206,6 +224,7 @@ export default function CategoriesRow() {
           font-size: 1.125rem;
           font-weight: 600;
           color: #333;
+          user-select: none;
         }
 
         .dropdown {
@@ -214,6 +233,8 @@ export default function CategoriesRow() {
           border-radius: 10px;
           padding: 0.5rem;
           box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          position: relative;
+          z-index: 100; /* ✅ ensure visible on mobile */
         }
 
         .dropdown-item {
@@ -229,9 +250,10 @@ export default function CategoriesRow() {
           gap: 8px;
           padding: 0.25rem 0.5rem;
           border-radius: 6px;
+          -webkit-tap-highlight-color: transparent;
         }
 
-        .brand-name:hover {
+        .brand-name:active {
           background: #ececec;
         }
 
@@ -255,59 +277,36 @@ export default function CategoriesRow() {
           padding: 0.25rem 0;
         }
 
-        .sub-item:hover {
+        .sub-item:active {
           text-decoration: underline;
         }
 
         @media (max-width: 768px) {
           .categories-container {
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            padding: 0 0.5rem;
-            gap: 0.5rem;
-            justify-content: flex-start;
+            gap: 1rem;
+            padding: 0.5rem;
           }
-          .category-item {
-            flex: 0 0 calc(33.333% - 0.33rem);
-          }
+
           .category-image {
             width: 4.5rem;
             height: 4.5rem;
             padding: 0.5rem;
           }
+
           .category-image img {
             width: 3rem;
             height: 3rem;
           }
+
           .category-name {
             font-size: 0.95rem;
           }
+
           .brand-icon {
             width: 24px;
             height: 24px;
           }
         }
-
-        .categories-container {
-  display: flex;
-  flex-wrap: nowrap; /* prevent wrapping on desktop */
-  justify-content: flex-start; /* align items to the left */
-  gap: 2rem;
-  padding: 1rem;
-  background-color: #fff;
-  overflow-x: auto; /* enable horizontal scroll */
-  scrollbar-width: thin; /* optional for Firefox */
-}
-
-.categories-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.categories-container::-webkit-scrollbar-thumb {
-  background-color: rgba(0,0,0,0.3);
-  border-radius: 3px;
-}
-
       `}</style>
     </div>
   );
