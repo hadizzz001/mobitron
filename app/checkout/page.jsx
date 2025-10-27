@@ -1355,7 +1355,7 @@ const generatePDF = async () => {
               <path d="M1.5 2h3s1.5 0 2 2l4 13s.4 1 1 1h13s3.6-.3 4-4l1-5s0-1-2-1h-19" />
             </svg>
           </div>
-          <p className="EmptyCartBlurb">You have no items in your shopping bag.</p>
+          <p className="EmptyCartBlurb">You have no items in your shopping cart.</p>
           <a
             href="/shop"
             className="Common_Button"

@@ -9,14 +9,14 @@ import { useBooleanValue } from '../context/CartBoolContext';
 import QuantitySelector from '../../components/QuantitySelector';
 import OutOfStockComponent from '../../components/OutOfStockComponent';
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Thumbs,Autoplay, Controller } from "swiper/modules";
+import { Pagination, Thumbs, Autoplay, Controller, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/thumbs";  
-
+import "swiper/css/thumbs";
+ 
 
 const Page = () => {
-  const [mainSwiper, setMainSwiper] = useState(null); 
+  const [mainSwiper, setMainSwiper] = useState(null);
   const [zoomSwiper, setZoomSwiper] = useState(null);
   const [translateXValue, setTranslateXValue] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -35,9 +35,9 @@ const Page = () => {
   const [selectedSize, setSelectedSize] = useState(null);
   const [displayedPrice, setDisplayedPrice] = useState(null);
   const [hasSizes, setHasSizes] = useState(false);
- const [thumbsSwiper, setThumbsSwiper] = useState(null);
- const hasRun = useRef(false);
- const [zoomedImg, setZoomedImg] = useState(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const hasRun = useRef(false);
+  const [zoomedImg, setZoomedImg] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +59,7 @@ const Page = () => {
 
 
 
- useEffect(() => {
+  useEffect(() => {
     if (hasRun.current) return; // Prevent double execution
     hasRun.current = true;
 
@@ -160,22 +160,22 @@ const Page = () => {
 
 
 
- 
 
-    const incrementViews123 = async () => {
-      try {
-        const response = await fetch(`api/productsView1/${search}`, {
-          method: 'PATCH',
-        });
-        const data = await response.json();
-        console.log("Updated data: ", data);
-      } catch (error) {
-        console.error("Error incrementing views:", error);
-      }
-    };
 
-    
-  
+  const incrementViews123 = async () => {
+    try {
+      const response = await fetch(`api/productsView1/${search}`, {
+        method: 'PATCH',
+      });
+      const data = await response.json();
+      console.log("Updated data: ", data);
+    } catch (error) {
+      console.error("Error incrementing views:", error);
+    }
+  };
+
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -193,7 +193,7 @@ const Page = () => {
 
     addToCart(allTemp1, quantity, selectedColor, selectedSize);
     handleClickc();
-incrementViews123(); 
+    incrementViews123();
 
   };
 
@@ -235,34 +235,34 @@ incrementViews123();
 
 
   useEffect(() => {
-  if (allTemp1 && color && color.length > 0) {
-    // Set the first available color
-    const firstColorObj = availableColorsWithSizes?.[0] || availableColorsWithoutSizes?.[0];
-    if (firstColorObj) {
-      setSelectedColor(firstColorObj.color);
+    if (allTemp1 && color && color.length > 0) {
+      // Set the first available color
+      const firstColorObj = availableColorsWithSizes?.[0] || availableColorsWithoutSizes?.[0];
+      if (firstColorObj) {
+        setSelectedColor(firstColorObj.color);
 
-      // If this color has sizes, set the first available size
-      if (firstColorObj.sizes && firstColorObj.sizes.length > 0) {
-        const firstSize = firstColorObj.sizes.find(s => s.qty > 0);
-        if (firstSize) {
-          setSelectedSize(firstSize.size);
-          setDisplayedPrice(firstSize.price);
+        // If this color has sizes, set the first available size
+        if (firstColorObj.sizes && firstColorObj.sizes.length > 0) {
+          const firstSize = firstColorObj.sizes.find(s => s.qty > 0);
+          if (firstSize) {
+            setSelectedSize(firstSize.size);
+            setDisplayedPrice(firstSize.price);
+          }
+        } else {
+          // If no sizes, set the color price directly
+          setDisplayedPrice(firstColorObj.price ?? null);
         }
-      } else {
-        // If no sizes, set the color price directly
-        setDisplayedPrice(firstColorObj.price ?? null);
       }
     }
-  }
-}, [allTemp1]);
+  }, [allTemp1]);
 
 
-useEffect(() => {
-  if (mainSwiper && zoomSwiper) {
-    mainSwiper.controller.control = zoomSwiper;
-    zoomSwiper.controller.control = mainSwiper;
-  }
-}, [mainSwiper, zoomSwiper]);
+  useEffect(() => {
+    if (mainSwiper && zoomSwiper) {
+      mainSwiper.controller.control = zoomSwiper;
+      zoomSwiper.controller.control = mainSwiper;
+    }
+  }, [mainSwiper, zoomSwiper]);
 
 
 
@@ -278,35 +278,73 @@ useEffect(() => {
       />
 
       {/* Zoom Modal */}
-      {zoomedImg && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80"
-          onClick={() => setZoomedImg(null)}
-          style={{ cursor: "zoom-out", zIndex: 9999 }} // Increased z-index here
-        >
-<Swiper 
-  pagination={{ clickable: true }}
-  spaceBetween={10}
-  slidesPerView={1}
-  onClick={e => e.stopPropagation()}
-  className="w-full max-w-[90vw] max-h-[90vh]"
-        modules={[Pagination, Controller]}
-      onSwiper={setZoomSwiper}  // ✅ Capture zoom swiper
-      controller={{ control: mainSwiper }} // ✅ Sync both!
->
-  {imgs.map((item, idx) => (
-    <SwiperSlide key={idx} className="flex justify-center items-center">
-      <img
-        src={item.replace("/upload/", "/upload/q_80/")}
-        alt=""
-        className="max-w-[90vw] max-h-[90vh] object-contain"
-      />
-    </SwiperSlide>
-  ))}
-</Swiper>
 
-        </div>
-      )}
+ 
+ 
+{zoomedImg && (
+  <div
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80"
+    onClick={() => setZoomedImg(null)}
+    style={{ cursor: "zoom-out", zIndex: 9999 }}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="relative w-full max-w-[90vw] max-h-[90vh]"
+    >
+      {/* Close Button */}
+      <button
+        onClick={() => setZoomedImg(null)}
+        className="absolute top-4 right-4 text-white text-4xl font-light z-50 hover:scale-110 transition"
+        style={{ cursor: "pointer" }}
+      >
+        ×
+      </button>
+
+      <Swiper
+        pagination={{ clickable: true }}
+        navigation={{
+          nextEl: ".swiper-button-next-custom",
+          prevEl: ".swiper-button-prev-custom",
+        }}
+        spaceBetween={10}
+        slidesPerView={1}
+        className="w-full h-full"
+        modules={[Pagination, Controller, Navigation]}
+        onSwiper={setZoomSwiper}
+        controller={{ control: mainSwiper }}
+      >
+        {imgs.map((item, idx) => (
+          <SwiperSlide
+            key={idx}
+            className="flex justify-center items-center"
+          >
+            <img
+              src={item.replace("/upload/", "/upload/q_80/")}
+              alt=""
+              className="max-w-[90vw] max-h-[90vh] object-contain select-none"
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Left Arrow */}
+      <button
+        className="swiper-button-prev-custom absolute left-6 top-1/2 -translate-y-1/2 text-white text-5xl font-light z-50 transition hover:scale-110"
+      >
+        ‹
+      </button>
+
+      {/* Right Arrow */}
+      <button
+        className="swiper-button-next-custom absolute right-6 top-1/2 -translate-y-1/2 text-white text-5xl font-light z-50 transition hover:scale-110"
+      >
+        ›
+      </button>
+    </div>
+  </div>
+)}
+
+
 
       <div className="ProductDetailWrapper  md:mt-20  mt-20">
         <div className="BreadcrumbsWrapper">
@@ -319,266 +357,263 @@ useEffect(() => {
               <unsafe-html style={{ display: "none" }} />
               <events-enabled data-events="custom.product.view" />
               <div className=" container">
- <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-      {/* LEFT: Swipe gallery */}
-<div className="w-full">
-  {imgs && imgs.length > 0 ? (
-    <>
-      {/* Main Swiper */}
-      <Swiper 
-        pagination={{ clickable: true }}
-        spaceBetween={10}
-        slidesPerView={1}
-        thumbs={{ swiper: thumbsSwiper }}
-        className="rounded-lg overflow-hidden"
-          modules={[Pagination, Thumbs, Controller]}
-  onSwiper={setMainSwiper}   // ✅ Capture instance
-  controller={{ control: zoomSwiper }} // ✅ Link to zoom swiper later
-      >
-        {imgs.map((item, idx) => (
-          <SwiperSlide key={idx} className="flex justify-center items-center  ">
-            <div className="w-full aspect-square flex justify-center items-center">
-              <img
-                src={item.replace("/upload/", "/upload/q_25/")}
-                alt=""
-                className="w-full h-full object-contain cursor-zoom-in"
-                onClick={() => setZoomedImg(item.replace("/upload/", "/upload/q_80/"))}
-              />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                  {/* LEFT: Swipe gallery */}
+                  <div className="w-full">
+                    {imgs && imgs.length > 0 ? (
+                      <>
+                        {/* Main Swiper */}
+                        <Swiper
+                          pagination={{ clickable: true }}
+                          spaceBetween={10}
+                          slidesPerView={1}
+                          thumbs={{ swiper: thumbsSwiper }}
+                          className="rounded-lg overflow-hidden"
+                          modules={[Pagination, Thumbs, Controller]}
+                          onSwiper={setMainSwiper}   // ✅ Capture instance
+                          controller={{ control: zoomSwiper }} // ✅ Link to zoom swiper later
+                        >
+                          {imgs.map((item, idx) => (
+                            <SwiperSlide key={idx} className="flex justify-center items-center  ">
+                              <div className="w-full aspect-square flex justify-center items-center">
+                                <img
+                                  src={item.replace("/upload/", "/upload/q_80/")}
+                                  alt=""
+                                  className="w-full h-full object-contain cursor-zoom-in"
+                                  onClick={() => setZoomedImg(item.replace("/upload/", "/upload/q_80/"))}
+                                />
+                              </div>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
 
-      {/* Thumbnails Swiper */}
-      <Swiper
-        onSwiper={setThumbsSwiper}
-        modules={[Thumbs]}
-        spaceBetween={10}
-        slidesPerView={4}
-        watchSlidesProgress
-        className="mt-3"
-      >
-        {imgs.map((item, idx) => (
-          <SwiperSlide key={idx} className="cursor-pointer">
-            <div className="w-full aspect-square overflow-hidden rounded-md border border-gray-300">
-              <img
-                src={item.replace("/upload/", "/upload/q_25,w_100/")}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </>
-  ) : (
-    <div className="text-gray-600">No images available</div>
-  )}
-</div>
+                        {/* Thumbnails Swiper */}
+                        <Swiper
+                          onSwiper={setThumbsSwiper}
+                          modules={[Thumbs]}
+                          spaceBetween={10}
+                          slidesPerView={4}
+                          watchSlidesProgress
+                          className="mt-3"
+                        >
+                          {imgs.map((item, idx) => (
+                            <SwiperSlide key={idx} className="cursor-pointer">
+                              <div className="w-full aspect-square overflow-hidden rounded-md border border-gray-300">
+                                <img
+                                  src={item}
+                                  alt=""
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
+                      </>
+                    ) : (
+                      <div className="text-gray-600">No images available</div>
+                    )}
+                  </div>
 
 
-      {/* RIGHT: ProductSelector (your data block) */}
-      <section className="ProductSelector">
-        <span className="ProvidersSingleProduct--selected">
-          <h4 className="myGray">
-            {title}
-            <span
-              className="ProductSelector_EditionLabel"
-              style={{ margin: "0 0 0 3px" }}
-            />
-          </h4>
-          <p className="mb-2 myGray">Category: {cat}</p>
-          <p className="mb-2 myGray">Subcategory: {sub}</p>
-          <p className="mb-2 myGray">Factory: {fact}</p>
-          <p className="mb-2 myGray">Views: {views}</p>
-          <p className="mb-2 myGray">Orders: {orders}</p>
-        </span>
+                  {/* RIGHT: ProductSelector (your data block) */}
+                  <section className="ProductSelector">
+                    <span className="ProvidersSingleProduct--selected">
+                      <h4 className="myGray">
+                        {title}
+                        <span
+                          className="ProductSelector_EditionLabel"
+                          style={{ margin: "0 0 0 3px" }}
+                        />
+                      </h4>
+                      <p className="mb-2 myGray">Category: {cat}</p>
+                      <p className="mb-2 myGray">Subcategory: {sub}</p>
+                      <p className="mb-2 myGray">Brand: {fact}</p>
+                      <p className="mb-2 myGray">Views: {views}</p>
+                      <p className="mb-2 myGray">Orders: {orders}</p>
+                    </span>
 
-        <div className="ApexPriceAndFreeShippingWrapper">
-          <div>
-            <div className="FreeShippingMessage FreeShippingMessage--empty" />
-          </div>
-        </div>
-
-        <hr />
-
-        <div className="ProductSelector_IntroBlurb">
-          {/* --- your color/size logic --- */}
-          {isCollection && (
-            <div className="mb-4">
-              <h2 className="color-label myGray">Choose a Color:</h2>
-              <div className="color-options">
-                {availableColorsWithSizes?.map((c, index) => (
-                  <div
-                    key={index}
-                    onClick={() => {
-                      setSelectedColor(c.color);
-                      setSelectedSize(null);
-                      setDisplayedPrice(null);
-                    }}
-                    className={`color-circle ${
-                      selectedColor === c.color ? "selected" : ""
-                    }`}
-                    style={{ backgroundColor: c.color }}
-                    title={`${c.color}`}
-                  />
-                ))}
-              </div>
-
-              {!selectedColor && (
-                <p className="error-message">Please select a color.</p>
-              )}
-
-              {selectedColor &&
-                availableColorsWithSizes.some(
-                  (c) => c.color === selectedColor
-                ) && (
-                  <div className="mb-4">
-                    <h2 className="size-label">Choose a Size:</h2>
-                    <div className="size-options">
-                      {availableColorsWithSizes
-                        .find((c) => c.color === selectedColor)
-                        ?.sizes?.filter((s) => s.qty > 0)
-                        ?.map((s, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              setSelectedSize(s.size);
-                              setDisplayedPrice(s.price);
-                            }}
-                            className={`px-3 py-1 m-1 border rounded ${
-                              selectedSize === s.size
-                                ? "bg-blue-500 text-white"
-                                : "bg-gray-100"
-                            } myGray`}
-                          >
-                            {s.size}
-                          </button>
-                        ))}
+                    <div className="ApexPriceAndFreeShippingWrapper">
+                      <div>
+                        <div className="FreeShippingMessage FreeShippingMessage--empty" />
+                      </div>
                     </div>
-                  </div>
-                )}
 
-              {availableColorsWithoutSizes?.length > 0 && (
-                <div className="mt-4">
-                  <h2 className="color-label myGray">Other Colors:</h2>
-                  <div className="color-options">
-                    {availableColorsWithoutSizes?.map((c, index) => (
-                      <div
-                        key={index}
-                        onClick={() => {
-                          setSelectedColor(c.color);
-                          setSelectedSize(null);
-                          setDisplayedPrice(c.price ?? null);
-                        }}
-                        className={`color-circle ${
-                          selectedColor === c.color ? "selected" : ""
-                        }`}
-                        style={{ backgroundColor: c.color }}
-                        title={`${c.color}`}
-                      />
-                    ))}
-                  </div>
+                    <hr />
+
+                    <div className="ProductSelector_IntroBlurb">
+                      {/* --- your color/size logic --- */}
+                      {isCollection && (
+                        <div className="mb-4">
+                          <h2 className="color-label myGray">Choose a Color:</h2>
+                          <div className="color-options">
+                            {availableColorsWithSizes?.map((c, index) => (
+                              <div
+                                key={index}
+                                onClick={() => {
+                                  setSelectedColor(c.color);
+                                  setSelectedSize(null);
+                                  setDisplayedPrice(null);
+                                }}
+                                className={`color-circle ${selectedColor === c.color ? "selected" : ""
+                                  }`}
+                                style={{ backgroundColor: c.color }}
+                                title={`${c.color}`}
+                              />
+                            ))}
+                          </div>
+
+                          {!selectedColor && (
+                            <p className="error-message">Please select a color.</p>
+                          )}
+
+                          {selectedColor &&
+                            availableColorsWithSizes.some(
+                              (c) => c.color === selectedColor
+                            ) && (
+                              <div className="mb-4">
+                                <h2 className="size-label">Choose a Size:</h2>
+                                <div className="size-options">
+                                  {availableColorsWithSizes
+                                    .find((c) => c.color === selectedColor)
+                                    ?.sizes?.filter((s) => s.qty > 0)
+                                    ?.map((s, idx) => (
+                                      <button
+                                        key={idx}
+                                        onClick={() => {
+                                          setSelectedSize(s.size);
+                                          setDisplayedPrice(s.price);
+                                        }}
+                                        className={`px-3 py-1 m-1 border rounded ${selectedSize === s.size
+                                            ? "bg-blue-500 text-white"
+                                            : "bg-gray-100"
+                                          } myGray`}
+                                      >
+                                        {s.size}
+                                      </button>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+
+                          {availableColorsWithoutSizes?.length > 0 && (
+                            <div className="mt-4">
+                              <h2 className="color-label myGray">Other Colors:</h2>
+                              <div className="color-options">
+                                {availableColorsWithoutSizes?.map((c, index) => (
+                                  <div
+                                    key={index}
+                                    onClick={() => {
+                                      setSelectedColor(c.color);
+                                      setSelectedSize(null);
+                                      setDisplayedPrice(c.price ?? null);
+                                    }}
+                                    className={`color-circle ${selectedColor === c.color ? "selected" : ""
+                                      }`}
+                                    style={{ backgroundColor: c.color }}
+                                    title={`${c.color}`}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* --- price logic --- */}
+                      {hasSizes ? (
+                        selectedSize ? (
+                          <div className="flex items-center space-x-2">
+                            <h2 className="mb-2 myGray line-through myPrice123">
+                              ${(parseFloat(displayedPrice) * 1.25).toFixed(2)}
+                            </h2>
+                            <h3 className="mb-2 myRed font-bold myPrice123">
+                              ${displayedPrice}
+                            </h3>
+                          </div>
+                        ) : (
+                          <></>
+                        )
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <h2 className="mb-2 myGray line-through myPrice123">
+                            ${(parseFloat(discount) * 1.25).toFixed(2)}
+                          </h2>
+                          <h3 className="mb-2 myRed font-bold myPrice123">
+                            ${discount}
+                          </h3>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* --- add to cart / in bag --- */}
+                    <div className="bagsFeaturesGrid__gridWrapper">
+                      {isInCart ? (
+                        <>
+                          <p
+                            style={{
+                              color: "#222",
+                              textAlign: "center",
+                              fontSize: "2em",
+                              fontWeight: "bolder",
+                            }}
+                          >
+                            It's In cart!
+                          </p>
+                          <div>
+                            <span className="ProvidersSingleProduct--selected">
+                              <button
+                                type="button"
+                                className="AddToCart HtmlProductAddToCart"
+                                style={{ borderRadius: "0" }}
+                                onClick={gotocart}
+                              >
+                                <span>CHECKOUT NOW</span>
+                              </button>
+                            </span>
+                          </div>
+                          <br />
+                        </>
+                      ) : (
+                        <div>
+                          <form onSubmit={handleSubmit}>
+                            <QuantitySelector
+                              initialQty={quantity}
+                              onChange={setQuantity}
+                              productId={id}
+                              type={type}
+                              selectedColor={selectedColor}
+                              selectedSize={selectedSize}
+                            />
+
+                            <span className="ProvidersSingleProduct--selected">
+                              {!isOutOfStock ? (
+                                <button
+                                  type="submit"
+                                  className="AddToCart HtmlProductAddToCart"
+                                  style={{ borderRadius: "0" }}
+                                  disabled={isCollection && !selectedColor}
+                                >
+                                  <span>ADD TO CART</span>
+                                </button>
+                              ) : (
+                                <OutOfStockComponent itemName={title} />
+                              )}
+                            </span>
+                          </form>
+
+                          <span className="ProvidersIfSelectedProductMatchesFilter">
+                            <p
+                              className="myGray"
+                              dangerouslySetInnerHTML={{ __html: desc }}
+                            />
+                            <br />
+                          </span>
+                        </div>
+                      )}
+                      <br />
+                    </div>
+                  </section>
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* --- price logic --- */}
-          {hasSizes ? (
-            selectedSize ? (
-              <div className="flex items-center space-x-2">
-                <h2 className="mb-2 myGray line-through myPrice123">
-                  ${(parseFloat(displayedPrice) * 1.25).toFixed(2)}
-                </h2>
-                <h3 className="mb-2 myRed font-bold myPrice123">
-                  ${displayedPrice}
-                </h3>
-              </div>
-            ) : (
-              <></>
-            )
-          ) : (
-            <div className="flex items-center space-x-2">
-                               <h2 className="mb-2 myGray line-through myPrice123">
-                  ${(parseFloat(discount) * 1.25).toFixed(2)}
-                </h2>
-              <h3 className="mb-2 myRed font-bold myPrice123">
-                ${discount}
-              </h3>
-            </div>
-          )}
-        </div>
-
-        {/* --- add to cart / in bag --- */}
-        <div className="bagsFeaturesGrid__gridWrapper">
-          {isInCart ? (
-            <>
-              <p
-                style={{
-                  color: "#222",
-                  textAlign: "center",
-                  fontSize: "2em",
-                  fontWeight: "bolder",
-                }}
-              >
-                It's In Bag!
-              </p>
-              <div>
-                <span className="ProvidersSingleProduct--selected">
-                  <button
-                    type="button"
-                    className="AddToCart HtmlProductAddToCart"
-                    style={{ borderRadius: "0" }}
-                    onClick={gotocart}
-                  >
-                    <span>CHECKOUT NOW</span>
-                  </button>
-                </span>
-              </div>
-              <br />
-            </>
-          ) : (
-            <div>
-              <form onSubmit={handleSubmit}>
-                <QuantitySelector
-                  initialQty={quantity}
-                  onChange={setQuantity}
-                  productId={id}
-                  type={type}
-                  selectedColor={selectedColor}
-                  selectedSize={selectedSize}
-                />
-
-                <span className="ProvidersSingleProduct--selected">
-                  {!isOutOfStock ? (
-                    <button
-                      type="submit"
-                      className="AddToCart HtmlProductAddToCart"
-                      style={{ borderRadius: "0" }}
-                      disabled={isCollection && !selectedColor}
-                    >
-                      <span>ADD TO BAG</span>
-                    </button>
-                  ) : (
-                    <OutOfStockComponent itemName={title} />
-                  )}
-                </span>
-              </form>
-
-              <span className="ProvidersIfSelectedProductMatchesFilter">
-                <p
-                  className="myGray"
-                  dangerouslySetInnerHTML={{ __html: desc }}
-                />
-                <br />
-              </span>
-            </div>
-          )}
-          <br />
-        </div>
-      </section>
-    </div>
               </div>
               <span className="ProvidersIfSelectedProductMatchesFilter">
                 <content-block slug="product-page-wssb">
@@ -589,7 +624,7 @@ useEffect(() => {
                     __html: ".ProductTile-SliderContainer--YMAL .ProductTile-SliderContainer-Title{height:auto;text-align:center;padding-bottom:10px}.ProductTile-SliderContainer--YMAL.ProductTile-SliderContainer{padding:40px 0 10px;background-color:#fff ;display:flex;flex-direction:column;align-items:center}.ProductTile-SliderContainer--YMAL .ProductTile-Slider-prev-ar,.ProductTile-SliderContainer--YMAL .ProductTile-Slider-next-ar{height:25px;width:25px;border-top:2px solid #999;border-right:2px solid #999}.ProductTile-SliderContainer--YMAL .ProductTile-Slider-next-ar{transform:rotate(45deg);margin:0 15px 0 0}.ProductTile-SliderContainer--YMAL .ProductTile-Slider-prev-ar{transform:rotate(225deg);margin:0 0 0 15px}.ProductTile-SliderContainer--YMAL .ProductTile-Slider-prev,.ProductTile-SliderContainer--YMAL .ProductTile-Slider-next{height:430px;width:80px;cursor:pointer;background-color:transparent;transition:opacity .3s ease;display:none;border:none;padding:0;appearance:none;-webkit-appearance:none}.ProductTile-SliderContainer--YMAL .ProductTile-Slider-prev[disabled],.ProductTile-SliderContainer--YMAL .ProductTile-Slider-next[disabled]{opacity:0;pointer-events:none}@media (min-width: 700px){.ProductTile-SliderContainer--YMAL .ProductTile-Slider-prev,.ProductTile-SliderContainer--YMAL .ProductTile-Slider-next{display:flex;align-items:center;justify-content:center}}@media (min-width: 811px){.ProductTile-SliderContainer--YMAL .ProductTile-SliderContainer-Title{padding-bottom:30px}}.ProductTile-SliderContainer--YMAL .productRangeSlider{display:flex;align-items:center;max-width:1340px;width:100%;padding:5px;justify-content:space-between;margin:0 auto;min-height:145px}"
                   }} />
                   <div className="ProductTile-SliderContainer ProductTile-SliderContainer--YMAL" data-product-list-category="ymal-slider">
-                    <div className="ProductTile-SliderContainer-Title br_text-3xl-serif br_text-white myGray">You might also like:</div>
+                    <div className="ProductTile-SliderContainer-Title br_text-3xl-serif br_text-white myGray">RELATED PRODUCTS:</div>
                     {allTemp2 && allTemp2?.length > 0 ? (
                       <section style={{ maxWidth: "100%" }}>
                         <Swiper spaceBetween={20} loop modules={[Autoplay]} autoplay={{

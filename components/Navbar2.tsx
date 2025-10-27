@@ -38,7 +38,7 @@ export default function NavBar() {
       <Cart />
 
       {/* ✅ Header with gradient background */}
-      <header className="w-full sticky top-0 z-40 bg-gradient-to-b from-white to-[#dbdbdb] shadow-sm">
+      <header className="w-full sticky top-0 z-[2000] bg-gradient-to-b from-white to-[#dbdbdb] shadow-sm">
         {/* Desktop layout */}
         <div className="hidden md:flex items-center justify-between px-4 py-4 text-black gap-3">
           {/* Logo */}

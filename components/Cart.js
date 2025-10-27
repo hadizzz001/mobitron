@@ -124,7 +124,7 @@ useEffect(() => {
             <div className="Checkout">
                 <div id="cartid2" className="MiniCart_Cart" style={{ zIndex: "99999999" }}>
 <div className="MiniCart_Cart_Heading br_text-grey-500 mt-2" style={{ position: 'relative' }}>
-  <span className="myGray">Your shopping bag</span>
+  <span className="myGray">Your shopping cart</span>
   
   <button
     className="MiniCart_Cart_CloseButton"
@@ -211,7 +211,7 @@ useEffect(() => {
                                     ))
                                 ) : (
                                     <div data-render-if="cart-is-empty" className="MiniCart_Cart_EmptyCart">
-                                        <span className="myGray">You have no items in your shopping bag.</span>
+                                        <span className="myGray">You have no items in your shopping cart.</span>
                                     </div>
                                 )}
 

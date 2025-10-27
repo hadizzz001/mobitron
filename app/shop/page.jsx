@@ -326,7 +326,7 @@ const Body = () => {
           </div>
         </header>
         <div className="br_flex">
-          <div id='filterId1' className="br_text-grey-500 br_fixed br_top-full br_h-full br_bottom-0 br_left-0 br_right-0    br_mt-0 br_flex br_flex-col br_justify-between br_transition-opacity br_duration-300 md:br_mt-14 md:br_flex-[0_0_280px]    br_translate-y-0 br_opacity-0 md:br_opacity-100 md:br_block md:br_relative md:br_h-auto md:br_transform-none">
+          {/* <div id='filterId1' className="br_text-grey-500 br_fixed br_top-full br_h-full br_bottom-0 br_left-0 br_right-0    br_mt-0 br_flex br_flex-col br_justify-between br_transition-opacity br_duration-300 md:br_mt-14 md:br_flex-[0_0_280px]    br_translate-y-0 br_opacity-0 md:br_opacity-100 md:br_block md:br_relative md:br_h-auto md:br_transform-none">
             <div className="br_items-center md:br_hidden br_grid br_px-4 br_grid-cols-[repeat(3,1fr)] br_border-solid br_border-0 br_border-b br_border-grey-300">
 
               <div className="br_text-base-sans-bold-stretched br_tracking-cta br_text-white br_my-4 br_py-2 br_px-0 br_border-none br_bg-transparent"></div>
@@ -572,14 +572,14 @@ const Body = () => {
 
 
 
-          </div>
+          </div> */}
 
 
 
 
 
           <div className="br_flex-1" >
-            <div className="br_flex br_justify-between br_items-center br_gap-4 br_mb-2 br_px-4 br_my-4 md:br_justify-end" onClick={handleClick1}>
+            {/* <div className="br_flex br_justify-between br_items-center br_gap-4 br_mb-2 br_px-4 br_my-4 md:br_justify-end" onClick={handleClick1}>
               <div className="br_flex br_gap-4 br_items-center md:br_hidden">
                 <button className="myGray br_leading-5 br_text-base-sans-bold-stretched br_px-4 br_py-2 br_rounded br_border br_border-solid br_flex br_gap-2 br_justify-center br_items-center br_whitespace-nowrap br_bg-transparent br_text-white br_border-grey-300 myBB">
                   <svg width={16} height={14}>
@@ -592,7 +592,7 @@ const Body = () => {
                   Filters
                 </button>
               </div>
-            </div>
+            </div> */}
 
 
 
