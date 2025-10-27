@@ -127,37 +127,67 @@ const Body = () => {
     fetchAllSizes();
   }, []);
 
-  const fetchProducts = async (pageNum = 1) => {
-    const params = new URLSearchParams();
+const fetchProducts = async (pageNum = 1) => {
+  const params = new URLSearchParams();
 
-    params.append('page', pageNum);
-    params.append('limit', 10);
+  params.append("page", pageNum);
+  params.append("limit", 10);
 
-    checkedCategories.forEach(cat => params.append('cat', cat));
-    checkedSubCategories.forEach(sub => params.append('sub', sub));
-    checkedFactories.forEach(fac => params.append('brnd', fac));
-    checkedSizes.forEach(size => params.append('size', size));
+  checkedCategories.forEach((cat) => params.append("cat", cat));
+  checkedSubCategories.forEach((sub) => params.append("sub", sub));
+  checkedFactories.forEach((fac) => params.append("brnd", fac));
+  checkedSizes.forEach((size) => params.append("size", size));
 
-    const res = await fetch(`/api/productsz1?${params.toString()}`);
-    const data = await res.json();
+  const res = await fetch(`/api/productsz1?${params.toString()}`);
+  const data = await res.json();
 
-    setTemp(data.products);
-    setTotalPages(data.totalPages);
+if (data.products && Array.isArray(data.products)) {
+  // Separate by presence of sort field
+  const withSort = data.products.filter(
+    (p) => p.sort !== undefined && p.sort !== null && p.sort !== ''
+  );
+  const withoutSort = data.products.filter(
+    (p) => p.sort === undefined || p.sort === null || p.sort === ''
+  );
 
-    // You can still update allSizes for filtered products if you want,
-    // but use allAvailableSizes for rendering checkboxes!
-    const sizesSet = new Set();
-    if (data.products && Array.isArray(data.products)) {
-      data.products.forEach(prod => {
-        prod.color?.forEach(colorObj => {
-          colorObj.sizes?.forEach(sizeObj => {
-            if (sizeObj.size) sizesSet.add(sizeObj.size);
-          });
+  // ✅ Force numeric comparison (convert to Number)
+  withSort.sort((a, b) => {
+    const sortA = Number(a.sort);
+    const sortB = Number(b.sort);
+
+    // If either isn't a valid number, push to bottom
+    if (isNaN(sortA) && isNaN(sortB)) return 0;
+    if (isNaN(sortA)) return 1;
+    if (isNaN(sortB)) return -1;
+
+    return sortA - sortB;
+  });
+
+  // ✅ Combine sorted + unsorted
+  const finalData = [...withSort, ...withoutSort];
+
+  setTemp(finalData);
+} else {
+  setTemp([]);
+}
+
+
+  setTotalPages(data.totalPages);
+
+  // Update available sizes for filtered products
+  const sizesSet = new Set();
+  if (data.products && Array.isArray(data.products)) {
+    data.products.forEach((prod) => {
+      prod.color?.forEach((colorObj) => {
+        colorObj.sizes?.forEach((sizeObj) => {
+          if (sizeObj.size) sizesSet.add(sizeObj.size);
         });
       });
-    }
-    setAllSizes(Array.from(sizesSet));
-  };
+    });
+  }
+  setAllSizes(Array.from(sizesSet));
+};
+
 
 
 

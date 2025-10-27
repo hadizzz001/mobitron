@@ -13,10 +13,20 @@ export default function ProductGrid() {
         const res = await fetch('/api/products');
         const data = await res.json();
 
+        // ✅ Separate products that have sort from those that don’t
+        const withSort = data.filter(p => p.sort !== undefined && p.sort !== null);
+        const withoutSort = data.filter(p => p.sort === undefined || p.sort === null);
+
+        // ✅ Sort only those with sort
+        const sortedWithSort = withSort.sort((a, b) => a.sort - b.sort);
+
+        // ✅ Combine: sorted ones first, others after
+        const finalData = [...sortedWithSort, ...withoutSort];
+
         setProductsData([
           {
             rowTitle: 'Top Deals',
-            items: data.slice(0, 4).map(product => {
+            items: finalData.slice(0, 4).map(product => {
               let priceDisplay = '';
               let discountDisplay = '';
 
@@ -26,10 +36,13 @@ export default function ProductGrid() {
                 );
                 const minPrice = Math.min(...allPrices);
                 const maxPrice = Math.max(...allPrices);
-                priceDisplay = minPrice === maxPrice ? `${minPrice}` : `${minPrice} - ${maxPrice}`;
+                priceDisplay =
+                  minPrice === maxPrice
+                    ? `${minPrice}`
+                    : `${minPrice} - ${maxPrice}`;
               } else {
-                const discount = parseFloat(product.discount || product.price);
-                const originalPrice = (discount * 1.25).toFixed(2);
+                const discount = parseFloat(product.discount);
+                const originalPrice = parseFloat(product.price);
                 priceDisplay = discount.toFixed(2);
                 discountDisplay = originalPrice;
               }
@@ -56,16 +69,18 @@ export default function ProductGrid() {
 
   return (
     <div style={{ padding: '30px' }}>
-      {productsData.map((section) => (
+      {productsData.map(section => (
         <div key={section.rowTitle}>
-          <p style={{
-            fontSize: '28px',
-            fontWeight: 'bold',
-            marginBottom: '20px',
-            color: '#222',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-          }}>
+          <p
+            style={{
+              fontSize: '28px',
+              fontWeight: 'bold',
+              marginBottom: '20px',
+              color: '#222',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+            }}
+          >
             {section.rowTitle}
           </p>
 
@@ -74,26 +89,32 @@ export default function ProductGrid() {
               <div
                 key={product.id}
                 className="product-card"
-                style={{ textAlign: 'left', position: 'relative', cursor: 'pointer' }}
+                style={{
+                  textAlign: 'left',
+                  position: 'relative',
+                  cursor: 'pointer',
+                }}
                 onClick={() => router.push(`/product?id=${product.id}`)}
               >
                 {index === 0 && product.type === 'single' && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '10px',
-                    width: '60px',
-                    height: '60px',
-                    backgroundColor: 'red',
-                    color: 'white',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 'bold',
-                    fontSize: '14px',
-                    zIndex: 1,
-                  }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      width: '60px',
+                      height: '60px',
+                      backgroundColor: 'red',
+                      color: 'white',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      zIndex: 1,
+                    }}
+                  >
                     SALE
                   </div>
                 )}
@@ -102,7 +123,11 @@ export default function ProductGrid() {
                   <img
                     src={product.img}
                     alt={product.title}
-                    style={{ maxHeight: '100%', width: 'auto', objectFit: 'contain' }}
+                    style={{
+                      maxHeight: '100%',
+                      width: 'auto',
+                      objectFit: 'contain',
+                    }}
                   />
                 </div>
 
