@@ -33,29 +33,29 @@ export default function FactoryNav() {
         setProducts(sortedData);
 
         // ✅ Get unique factories sorted by the lowest product sort value
-        const uniqueFactories = [
-          ...new Set(sortedData.map((p) => p.factory)),
-        ].sort((a, b) => {
-          const aMin = Math.min(
-            ...sortedData
-              .filter((p) => p.factory === a)
-              .map((p) =>
-                p.sort === null || p.sort === undefined || p.sort === 0
-                  ? Infinity
-                  : p.sort
-              )
-          );
-          const bMin = Math.min(
-            ...sortedData
-              .filter((p) => p.factory === b)
-              .map((p) =>
-                p.sort === null || p.sort === undefined || p.sort === 0
-                  ? Infinity
-                  : p.sort
-              )
-          );
-          return aMin - bMin;
-        });
+        const uniqueFactories = [...new Set(sortedData.map((p) => p.factory))].sort(
+          (a, b) => {
+            const aMin = Math.min(
+              ...sortedData
+                .filter((p) => p.factory === a)
+                .map((p) =>
+                  p.sort === null || p.sort === undefined || p.sort === 0
+                    ? Infinity
+                    : p.sort
+                )
+            );
+            const bMin = Math.min(
+              ...sortedData
+                .filter((p) => p.factory === b)
+                .map((p) =>
+                  p.sort === null || p.sort === undefined || p.sort === 0
+                    ? Infinity
+                    : p.sort
+                )
+            );
+            return aMin - bMin;
+          }
+        );
 
         setFactories(uniqueFactories);
       } catch (error) {
@@ -67,14 +67,62 @@ export default function FactoryNav() {
 
   const getCategoriesByFactory = (factory) => {
     const filtered = products.filter((p) => p.factory === factory);
-    return [...new Set(filtered.map((p) => p.category))];
+    const uniqueCategories = [
+      ...new Set(filtered.map((p) => p.category)),
+    ];
+
+    // ✅ Sort categories by minimum sort value among products in that category
+    return uniqueCategories.sort((a, b) => {
+      const aMin = Math.min(
+        ...filtered
+          .filter((p) => p.category === a)
+          .map((p) =>
+            p.sort === null || p.sort === undefined || p.sort === 0
+              ? Infinity
+              : p.sort
+          )
+      );
+      const bMin = Math.min(
+        ...filtered
+          .filter((p) => p.category === b)
+          .map((p) =>
+            p.sort === null || p.sort === undefined || p.sort === 0
+              ? Infinity
+              : p.sort
+          )
+      );
+      return aMin - bMin;
+    });
   };
 
   const getSubsByFactoryAndCategory = (factory, category) => {
     const filtered = products.filter(
       (p) => p.factory === factory && p.category === category
     );
-    return [...new Set(filtered.map((p) => p.sub))];
+    const uniqueSubs = [...new Set(filtered.map((p) => p.sub))];
+
+    // ✅ Sort subs by minimum sort value
+    return uniqueSubs.sort((a, b) => {
+      const aMin = Math.min(
+        ...filtered
+          .filter((p) => p.sub === a)
+          .map((p) =>
+            p.sort === null || p.sort === undefined || p.sort === 0
+              ? Infinity
+              : p.sort
+          )
+      );
+      const bMin = Math.min(
+        ...filtered
+          .filter((p) => p.sub === b)
+          .map((p) =>
+            p.sort === null || p.sort === undefined || p.sort === 0
+              ? Infinity
+              : p.sort
+          )
+      );
+      return aMin - bMin;
+    });
   };
 
   const handleSubClick = (sub) => {
@@ -112,17 +160,15 @@ export default function FactoryNav() {
                   <div key={j} className="category-block">
                     <div className="category-title">{cat}</div>
                     <ul className="sub-list">
-                      {getSubsByFactoryAndCategory(factory, cat).map(
-                        (sub, k) => (
-                          <li
-                            key={k}
-                            className="sub-item"
-                            onClick={() => handleSubClick(sub)}
-                          >
-                            {sub}
-                          </li>
-                        )
-                      )}
+                      {getSubsByFactoryAndCategory(factory, cat).map((sub, k) => (
+                        <li
+                          key={k}
+                          className="sub-item"
+                          onClick={() => handleSubClick(sub)}
+                        >
+                          {sub}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 ))}

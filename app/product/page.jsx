@@ -488,30 +488,52 @@ const Page = () => {
                         </div>
                       )}
 
-                      {/* --- price logic --- */}
-                      {hasSizes ? (
-                        selectedSize ? (
-                          <div className="flex items-center space-x-2">
-                            <h2 className="mb-2 myGray line-through myPrice123">
-                              ${(parseFloat(displayedPrice) * 1.25).toFixed(2)}
-                            </h2>
-                            <h3 className="mb-2 myRed font-bold myPrice123">
-                              ${displayedPrice}
-                            </h3>
-                          </div>
-                        ) : (
-                          <></>
-                        )
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <h2 className="mb-2 myGray line-through myPrice123">
-                            ${(parseFloat(discount) * 1.25).toFixed(2)}
-                          </h2>
-                          <h3 className="mb-2 myRed font-bold myPrice123">
-                            ${discount}
-                          </h3>
-                        </div>
-                      )}
+{/* --- price logic --- */}
+{hasSizes ? (
+  selectedSize ? (
+    (() => {
+      const original = parseFloat(displayedPrice);
+      const discounted = original;
+      const discountPercent = 0; // No percent for variable size-based pricing
+      return (
+        <div className="flex items-center space-x-2">
+          <h2 className="mb-2 myGray line-through myPrice123">
+            ${(original * 1.25).toFixed(2)}
+          </h2>
+          <h3 className="mb-2 myRed font-bold myPrice123">
+            ${discounted}
+          </h3>
+        </div>
+      );
+    })()
+  ) : null
+) : (() => {
+  const originalPrice = parseFloat(price || "0");
+  const discountPrice = parseFloat(discount || "0");
+  let discountPercent = null;
+
+  if (originalPrice > 0 && discountPrice > 0) {
+    discountPercent = Math.round(
+      ((originalPrice - discountPrice) / originalPrice) * 100
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-2">
+            <h3 className="mb-2 myRed font-bold myPrice123">
+        ${discountPrice.toFixed(2)}
+      </h3>
+      <h2 className="mb-2 myGray line-through myPrice123">
+        ${originalPrice.toFixed(2)}
+      </h2>
+
+      {discountPercent !== null && (
+        <span className="text-xs text-gray-500">({discountPercent}% off)</span>
+      )}
+    </div>
+  );
+})()}
+
                     </div>
 
                     {/* --- add to cart / in bag --- */}

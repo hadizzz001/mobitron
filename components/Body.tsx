@@ -128,8 +128,7 @@ const Body = () => {
         <ProductArrival />
         {/* <ProductArrival1 /> */}
 
-        <Carousel1 />
-        <ProductArrival2 />
+        <Carousel1 /> 
         {/* <ProductArrival3 /> */}
 
 
