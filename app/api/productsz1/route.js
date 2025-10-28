@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 export const revalidate = 10;
 
+// Handle preflight (CORS)
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -73,32 +74,22 @@ export async function GET(req) {
 
     const total = await collection.countDocuments(query);
 
-    // ✅ Aggregation pipeline to sort properly
+    // ✅ Aggregation pipeline with proper sort handling
     const data = await collection
       .aggregate([
         { $match: query },
         {
           $addFields: {
-            // convert sort to a number, or null if missing
             sortNumeric: {
-              $cond: {
-                if: { $regexMatch: { input: { $toString: "$sort" }, regex: /^[0-9]+$/ } },
-                then: { $toInt: "$sort" },
-                else: null,
-              },
+              $cond: [
+                { $and: [{ $ifNull: ["$sort", false] }, { $ne: ["$sort", 0] }] },
+                "$sort",
+                Number.MAX_SAFE_INTEGER, // push 0/null/undefined to the end
+              ],
             },
           },
         },
-        {
-          $sort: {
-            // 1. Items with numeric sort first, ordered ascending
-            sortNumeric: 1,
-            // 2. Missing/null sort go after
-            sort: 1,
-            // 3. Tiebreaker by _id
-            _id: 1,
-          },
-        },
+        { $sort: { sortNumeric: 1, _id: 1 } },
         { $skip: skip },
         { $limit: limit },
       ])

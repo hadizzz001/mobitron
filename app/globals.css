@@ -1082,3 +1082,12 @@ nav a{
 nav a:hover{
   color: #555 !important;
 }
+
+
+.myGrayp{
+   color: #666 !important;
+   font-weight: bold !important;
+}
+.myGrayp1{
+   color: #888 !important;
+}

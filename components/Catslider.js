@@ -16,9 +16,47 @@ export default function FactoryNav() {
       try {
         const res = await fetch('/api/products');
         const data = await res.json();
-        setProducts(data);
 
-        const uniqueFactories = [...new Set(data.map((p) => p.factory))];
+        // ✅ Sort products by 'sort' ascending, placing 0/null/undefined at the end
+        const sortedData = data.sort((a, b) => {
+          const sortA =
+            a.sort === null || a.sort === undefined || a.sort === 0
+              ? Infinity
+              : a.sort;
+          const sortB =
+            b.sort === null || b.sort === undefined || b.sort === 0
+              ? Infinity
+              : b.sort;
+          return sortA - sortB;
+        });
+
+        setProducts(sortedData);
+
+        // ✅ Get unique factories sorted by the lowest product sort value
+        const uniqueFactories = [
+          ...new Set(sortedData.map((p) => p.factory)),
+        ].sort((a, b) => {
+          const aMin = Math.min(
+            ...sortedData
+              .filter((p) => p.factory === a)
+              .map((p) =>
+                p.sort === null || p.sort === undefined || p.sort === 0
+                  ? Infinity
+                  : p.sort
+              )
+          );
+          const bMin = Math.min(
+            ...sortedData
+              .filter((p) => p.factory === b)
+              .map((p) =>
+                p.sort === null || p.sort === undefined || p.sort === 0
+                  ? Infinity
+                  : p.sort
+              )
+          );
+          return aMin - bMin;
+        });
+
         setFactories(uniqueFactories);
       } catch (error) {
         console.error(error);

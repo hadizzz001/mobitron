@@ -13,7 +13,7 @@ import { Pagination, Thumbs, Autoplay, Controller, Navigation } from "swiper/mod
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/thumbs";
- 
+
 
 const Page = () => {
   const [mainSwiper, setMainSwiper] = useState(null);
@@ -24,7 +24,7 @@ const Page = () => {
   const search = searchParams.get('id');
   const custom = searchParams.get('custom');
   const imgg = searchParams.get('imgg');
-  let imgs, title, price, desc, cat, brand, discount, id, stock, type, color, sub, fact, views, orders;
+  let imgs, title, price, desc, cat, brand, discount, id, stock, type, color, sub, fact, views, orders, icode;
   const { cart, addToCart, quantities } = useCart();
   const { isBooleanValue, setBooleanValue } = useBooleanValue();
   const isInCart = cart?.some((item) => item._id === search);
@@ -59,25 +59,6 @@ const Page = () => {
 
 
 
-  useEffect(() => {
-    if (hasRun.current) return; // Prevent double execution
-    hasRun.current = true;
-
-    const incrementViews = async () => {
-      try {
-        const response = await fetch(`api/productsView/${search}`, {
-          method: 'PATCH',
-        });
-        const data = await response.json();
-        console.log("Updated data: ", data);
-      } catch (error) {
-        console.error("Error incrementing views:", error);
-      }
-    };
-
-    incrementViews();
-  }, [search]);
-
 
 
 
@@ -98,6 +79,7 @@ const Page = () => {
     fact = allTemp1.factory;
     views = allTemp1.views;
     orders = allTemp1.orders;
+    icode = allTemp1.code;
   }
 
 
@@ -162,18 +144,7 @@ const Page = () => {
 
 
 
-  const incrementViews123 = async () => {
-    try {
-      const response = await fetch(`api/productsView1/${search}`, {
-        method: 'PATCH',
-      });
-      const data = await response.json();
-      console.log("Updated data: ", data);
-    } catch (error) {
-      console.error("Error incrementing views:", error);
-    }
-  };
-
+ 
 
 
   const handleSubmit = (e) => {
@@ -279,70 +250,70 @@ const Page = () => {
 
       {/* Zoom Modal */}
 
- 
- 
-{zoomedImg && (
-  <div
-    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80"
-    onClick={() => setZoomedImg(null)}
-    style={{ cursor: "zoom-out", zIndex: 9999 }}
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className="relative w-full max-w-[90vw] max-h-[90vh]"
-    >
-      {/* Close Button */}
-      <button
-        onClick={() => setZoomedImg(null)}
-        className="absolute top-4 right-4 text-white text-4xl font-light z-50 hover:scale-110 transition"
-        style={{ cursor: "pointer" }}
-      >
-        ×
-      </button>
 
-      <Swiper
-        pagination={{ clickable: true }}
-        navigation={{
-          nextEl: ".swiper-button-next-custom",
-          prevEl: ".swiper-button-prev-custom",
-        }}
-        spaceBetween={10}
-        slidesPerView={1}
-        className="w-full h-full"
-        modules={[Pagination, Controller, Navigation]}
-        onSwiper={setZoomSwiper}
-        controller={{ control: mainSwiper }}
-      >
-        {imgs.map((item, idx) => (
-          <SwiperSlide
-            key={idx}
-            className="flex justify-center items-center"
+
+      {zoomedImg && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80"
+          onClick={() => setZoomedImg(null)}
+          style={{ cursor: "zoom-out", zIndex: 9999 }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-[90vw] max-h-[90vh]"
           >
-            <img
-              src={item.replace("/upload/", "/upload/q_80/")}
-              alt=""
-              className="max-w-[90vw] max-h-[90vh] object-contain select-none"
-            />
-          </SwiperSlide>
-        ))}
-      </Swiper>
+            {/* Close Button */}
+            <button
+              onClick={() => setZoomedImg(null)}
+              className="absolute top-4 right-4 text-white text-4xl font-light z-50 hover:scale-110 transition"
+              style={{ cursor: "pointer" }}
+            >
+              ×
+            </button>
 
-      {/* Left Arrow */}
-      <button
-        className="swiper-button-prev-custom absolute left-6 top-1/2 -translate-y-1/2 text-white text-5xl font-light z-50 transition hover:scale-110"
-      >
-        ‹
-      </button>
+            <Swiper
+              pagination={{ clickable: true }}
+              navigation={{
+                nextEl: ".swiper-button-next-custom",
+                prevEl: ".swiper-button-prev-custom",
+              }}
+              spaceBetween={10}
+              slidesPerView={1}
+              className="w-full h-full"
+              modules={[Pagination, Controller, Navigation]}
+              onSwiper={setZoomSwiper}
+              controller={{ control: mainSwiper }}
+            >
+              {imgs.map((item, idx) => (
+                <SwiperSlide
+                  key={idx}
+                  className="flex justify-center items-center"
+                >
+                  <img
+                    src={item.replace("/upload/", "/upload/q_80/")}
+                    alt=""
+                    className="max-w-[90vw] max-h-[90vh] object-contain select-none"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
 
-      {/* Right Arrow */}
-      <button
-        className="swiper-button-next-custom absolute right-6 top-1/2 -translate-y-1/2 text-white text-5xl font-light z-50 transition hover:scale-110"
-      >
-        ›
-      </button>
-    </div>
-  </div>
-)}
+            {/* Left Arrow */}
+            <button
+              className="swiper-button-prev-custom absolute left-6 top-1/2 -translate-y-1/2 text-white text-5xl font-light z-50 transition hover:scale-110"
+            >
+              ‹
+            </button>
+
+            {/* Right Arrow */}
+            <button
+              className="swiper-button-next-custom absolute right-6 top-1/2 -translate-y-1/2 text-white text-5xl font-light z-50 transition hover:scale-110"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      )}
 
 
 
@@ -425,11 +396,9 @@ const Page = () => {
                           style={{ margin: "0 0 0 3px" }}
                         />
                       </h4>
-                      <p className="mb-2 myGray">Category: {cat}</p>
-                      <p className="mb-2 myGray">Subcategory: {sub}</p>
                       <p className="mb-2 myGray">Brand: {fact}</p>
-                      <p className="mb-2 myGray">Views: {views}</p>
-                      <p className="mb-2 myGray">Orders: {orders}</p>
+                      <p className="mb-2 myGray">Category: {cat}</p> 
+                      <p className="mb-2 myGray">Item code: {icode}</p> 
                     </span>
 
                     <div className="ApexPriceAndFreeShippingWrapper">
@@ -484,8 +453,8 @@ const Page = () => {
                                           setDisplayedPrice(s.price);
                                         }}
                                         className={`px-3 py-1 m-1 border rounded ${selectedSize === s.size
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-gray-100"
+                                          ? "bg-blue-500 text-white"
+                                          : "bg-gray-100"
                                           } myGray`}
                                       >
                                         {s.size}
@@ -627,24 +596,32 @@ const Page = () => {
                     <div className="ProductTile-SliderContainer-Title br_text-3xl-serif br_text-white myGray">RELATED PRODUCTS:</div>
                     {allTemp2 && allTemp2?.length > 0 ? (
                       <section style={{ maxWidth: "100%" }}>
-                        <Swiper spaceBetween={20} loop modules={[Autoplay]} autoplay={{
-                          delay: 2000,
-                          stopOnLastSlide: false,
-                          reverseDirection: true
-                        }} breakpoints={{
-                          150: {
-                            slidesPerView: 2,
-                          },
-                          768: {
-                            slidesPerView: 4,
-                          },
-                        }}>
-                          <div className='home__cars-wrapper'>
-                            {allTemp2.map((temp, index) => (
-                              <SwiperSlide key={temp._id}><CarCard temp={temp} index={index} /></SwiperSlide>
-                            ))}
-                          </div>
-                        </Swiper>
+<Swiper
+  spaceBetween={20}
+  loop
+  dir="rtl" // This makes the slider right-to-left
+  modules={[Autoplay]}
+  autoplay={{
+    delay: 2000,
+    stopOnLastSlide: false,
+    reverseDirection: true, // optional, for autoplay reverse
+  }}
+  breakpoints={{
+    150: {
+      slidesPerView: 2,
+    },
+    768: {
+      slidesPerView: 4,
+    },
+  }}
+>
+  {allTemp2.map((temp, index) => (
+    <SwiperSlide key={temp._id}>
+      <CarCard temp={temp} index={index} />
+    </SwiperSlide>
+  ))}
+</Swiper>
+
                       </section>
                     ) : (
                       <div className='home___error-container'>

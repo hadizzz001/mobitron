@@ -9,24 +9,31 @@ interface CarCardProps {
 const CarCard = ({ temp }: CarCardProps) => {
   const { _id, title, price, discount, img, category, stock, type, color } = temp;
 
-  // --- PRICE LOGIC ---
-  let displayPrice = "";
-  let displayOldPrice = "";
-  let discountPercent: number | null = null;
+// --- PRICE LOGIC ---
+let displayPrice = "";
+let displayOldPrice = "";
+let discountPercent: number | null = null;
 
-  if (type === "collection" && color?.length > 0) {
-    // Flatten all sizes and extract their prices
-    const allPrices = color.flatMap((c) => c.sizes?.map((s) => s.price) || []);
-    const minPrice = Math.min(...allPrices);
-    const maxPrice = Math.max(...allPrices);
-    displayPrice = `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
-  } else if (type === "single") {
-    const discountValue = parseFloat(discount || "0");
-    const initialPrice = discountValue + discountValue * 0.25; // +25%
-    displayOldPrice = `$${initialPrice.toFixed(2)}`;
-    displayPrice = `$${discountValue.toFixed(2)}`;
-    discountPercent = 25; // always 25% off by definition
+if (type === "collection" && color?.length > 0) {
+  // Flatten all sizes and extract their prices
+  const allPrices = color.flatMap((c) => c.sizes?.map((s) => s.price) || []);
+  const minPrice = Math.min(...allPrices);
+  const maxPrice = Math.max(...allPrices);
+  displayPrice = `$${minPrice.toFixed(2)} - $${maxPrice.toFixed(2)}`;
+} else if (type === "single") {
+  const initialPrice = parseFloat(price || "0");
+  const discountedPrice = parseFloat(discount || "0");
+
+  displayOldPrice = `$${initialPrice.toFixed(2)}`;
+  displayPrice = `$${discountedPrice.toFixed(2)}`;
+
+  if (initialPrice > 0 && discountedPrice < initialPrice) {
+    discountPercent = Math.round(((initialPrice - discountedPrice) / initialPrice) * 100);
+  } else {
+    discountPercent = null; // no discount
   }
+}
+
 
   // --- OUT OF STOCK CHECK ---
   const isOutOfStock =

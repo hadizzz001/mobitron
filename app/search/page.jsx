@@ -34,19 +34,19 @@ const SlidingPagination = ({ page, totalPages, setPage }) => {
       {/* Jump to START */}
       {page > 1 && (
 
-        <button
-          className="w-8 h-8 flex items-center justify-center"
-          onClick={jumpToStart}
-        >
-          <svg
-            className="w-6 h-6 text-gray-400"
-            viewBox="0 0 10 10"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <polygon points="10,0 0,5 10,10" />
-          </svg>
-        </button>
+<button
+  className="w-8 h-8 flex items-center justify-center"
+  onClick={jumpToStart}
+>
+  <svg
+    className="w-6 h-6 text-gray-400"
+    viewBox="0 0 10 10"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <polygon points="10,0 0,5 10,10" />
+  </svg>
+</button>
 
 
 
@@ -57,8 +57,9 @@ const SlidingPagination = ({ page, totalPages, setPage }) => {
         <button
           key={p}
           onClick={() => setPage(p)}
-          className={`w-8 h-8 border flex items-center justify-center ${p === page ? "bg-red-600 text-white font-bold" : "bg-gray-400 text-white"
-            }`}
+          className={`w-8 h-8  flex items-center justify-center ${
+            p === page ? "myGrayp" : "myGrayp1"
+          }`}
         >
           {p}
         </button>
@@ -66,19 +67,19 @@ const SlidingPagination = ({ page, totalPages, setPage }) => {
 
       {/* Jump to END */}
       {page < totalPages && (
-        <button
-          className="w-8 h-8 flex items-center justify-center"
-          onClick={jumpToEnd} // or your "next" handler
-        >
-          <svg
-            className="w-6 h-6 text-gray-400"
-            viewBox="0 0 10 10"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <polygon points="0,0 10,5 0,10" />
-          </svg>
-        </button>
+<button
+  className="w-8 h-8 flex items-center justify-center"
+  onClick={jumpToEnd} // or your "next" handler
+>
+  <svg
+    className="w-6 h-6 text-gray-400"
+    viewBox="0 0 10 10"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <polygon points="0,0 10,5 0,10" />
+  </svg>
+</button>
 
       )}
     </div>
@@ -179,7 +180,6 @@ const Body = () => {
 
 
             <div className="br_@container">
-              <SlidingPagination page={page} totalPages={totalPages} setPage={setPage} />
               <div
                 className="br_group/tile-grid br_grid br_grid-flow-dense br_gap-1 br_py-1 br_grid-cols-2 sm:br_grid-cols-[repeat(auto-fill,minmax(250px,1fr))] sm:br_px-1 lg:br_grid-cols-[repeat(auto-fill,minmax(285px,1fr))] supports-[container-type]:sm:br_grid-cols-2 supports-[container-type]:sm:@[640px]:br_grid-cols-[repeat(auto-fill,minmax(250px,1fr))] supports-[container-type]:lg:@[1024px]:br_grid-cols-[repeat(auto-fill,minmax(285px,1fr))]"
 
