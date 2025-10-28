@@ -26,37 +26,42 @@ export default function ProductGrid() {
         setProductsData([
           {
             rowTitle: 'Top Deals',
-            items: finalData.slice(0, 4).map(product => {
-              let priceDisplay = '';
-              let discountDisplay = '';
+items: finalData.slice(0, 4).map(product => {
+  let priceDisplay = '';
+  let discountDisplay = '';
 
-              if (product.type === 'collection' && product.color) {
-                const allPrices = product.color.flatMap(c =>
-                  c.sizes.map(s => s.price)
-                );
-                const minPrice = Math.min(...allPrices);
-                const maxPrice = Math.max(...allPrices);
-                priceDisplay =
-                  minPrice === maxPrice
-                    ? `${minPrice}`
-                    : `${minPrice} - ${maxPrice}`;
-              } else {
-                const discount = parseFloat(product.discount);
-                const originalPrice = parseFloat(product.price);
-                priceDisplay = discount.toFixed(2);
-                discountDisplay = originalPrice;
-              }
+  if (product.type === 'collection' && product.color) {
+    const allPrices = product.color.flatMap(c =>
+      c.sizes.map(s => parseFloat(s.price))
+    );
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    priceDisplay =
+      minPrice === maxPrice ? `${minPrice.toFixed(2)}` : `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`;
+  } else {
+    const price = parseFloat(product.price);
+    const discount = parseFloat(product.discount || '0');
 
-              return {
-                id: product._id,
-                title: product.title,
-                category: product.category,
-                img: product.img[0],
-                price: priceDisplay,
-                discount: discountDisplay,
-                type: product.type,
-              };
-            }),
+    if (discount > 0 && discount < price) {
+      priceDisplay = (price - discount).toFixed(2); // price after discount
+      discountDisplay = price.toFixed(2); // original price
+    } else {
+      priceDisplay = price.toFixed(2);
+      discountDisplay = ''; // no strike-through if no discount
+    }
+  }
+
+  return {
+    id: product._id,
+    title: product.title,
+    category: product.category,
+    img: product.img[0],
+    price: priceDisplay,
+    discount: discountDisplay,
+    type: product.type,
+  };
+})
+
           },
         ]);
       } catch (error) {
@@ -140,9 +145,10 @@ export default function ProductGrid() {
                       <span className="currency">$</span>
                       {product.price}
                     </p>
-                    {product.type === 'single' && product.discount && (
-                      <p className="discount">${product.discount}</p>
-                    )}
+{product.discount && (
+  <p className="discount">${product.discount}</p>
+)}
+
                   </div>
                 </div>
               </div>

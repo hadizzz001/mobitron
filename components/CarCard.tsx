@@ -24,13 +24,15 @@ if (type === "collection" && color?.length > 0) {
   const initialPrice = parseFloat(price || "0");
   const discountedPrice = parseFloat(discount || "0");
 
-  displayOldPrice = `$${initialPrice.toFixed(2)}`;
-  displayPrice = `$${discountedPrice.toFixed(2)}`;
-
-  if (initialPrice > 0 && discountedPrice < initialPrice) {
-    discountPercent = Math.round(((initialPrice - discountedPrice) / initialPrice) * 100);
+  // If discount is same as price or zero, show only price
+  if (discountedPrice === 0 || discountedPrice === initialPrice) {
+    displayPrice = `$${initialPrice.toFixed(2)}`;
+    displayOldPrice = "";
+    discountPercent = null;
   } else {
-    discountPercent = null; // no discount
+    displayOldPrice = `$${initialPrice.toFixed(2)}`;
+    displayPrice = `$${discountedPrice.toFixed(2)}`;
+    discountPercent = Math.round(((initialPrice - discountedPrice) / initialPrice) * 100);
   }
 }
 
@@ -74,23 +76,26 @@ if (type === "collection" && color?.length > 0) {
                     <a href={`/product?id=${_id}`} className="text-current no-underline">
                       <h2 className="text-sm font-bold myGray py-1">{title}</h2>
 
-                      {type === "collection" ? (
-                        <div className="font-light text-[11px] py-1  text-gray-400 myGray">
-                          {displayPrice}
-                        </div>
-                      ) : (
-                        <div className="price-container inline-flex flex-wrap gap-x-2 items-baseline justify-center text-white">
-                          <span className="font-light text-[11px] py-1 line-through text-gray-400">
-                            {displayOldPrice}
-                          </span>
-                          <span className="font-light text-[11px] py-1 rounded myRed">
-                            {displayPrice}
-                            <span className="ml-1 text-xs">
-                              ({discountPercent}% off)
-                            </span>
-                          </span>
-                        </div>
-                      )}
+{type === "collection" ? (
+  <div className="font-light text-[11px] py-1  text-gray-400 myGray">
+    {displayPrice}
+  </div>
+) : (
+  <div className="price-container inline-flex flex-wrap gap-x-2 items-baseline justify-center text-white">
+    {displayOldPrice && (
+      <span className="font-light text-[11px] py-1 line-through text-gray-400">
+        {displayOldPrice}
+      </span>
+    )}
+    <span className="font-light text-[11px] py-1 rounded myRed">
+      {displayPrice}
+      {discountPercent !== null && (
+        <span className="ml-1 text-xs">({discountPercent}% off)</span>
+      )}
+    </span>
+  </div>
+)}
+
                     </a>
                   </h3>
                 </div>
