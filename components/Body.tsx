@@ -7,6 +7,7 @@ import Carousel from './Carousel';
 import Carousel1 from './Carousel1';
 import Under from './Under';
 import BrandCarousel from './BrandCarousel';
+import Sections from './Sections';
 
 
 
@@ -129,6 +130,7 @@ const Body = () => {
         {/* <ProductArrival1 /> */}
 
         <Carousel1 /> 
+        <Sections /> 
         {/* <ProductArrival3 /> */}
 
 

@@ -46,36 +46,37 @@ const MyCarousel = () => {
     );
   }
 
-  return (
-    <div className="relative w-full overflow-hidden">
-      {/* Fixed aspect ratio (16:9) */}
-      <div className="relative w-full pt-[56.25%]">
-        {images.map((img, index) => (
-          <img
-            key={index}
-            src={img}
-            alt={`slide-${index}`}
-            className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              index === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Dots Navigation */}
-      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              currentIndex === index ? "bg-white scale-110" : "bg-gray-400"
-            }`}
-          />
-        ))}
-      </div>
+return (
+  <div className="relative w-full overflow-hidden">
+    {/* Image Container with responsive heights */}
+    <div className="relative w-full h-[300px] md:h-[500px]">
+      {images.map((img, index) => (
+        <img
+          key={index}
+          src={img}
+          alt={`slide-${index}`}
+          className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ${
+            index === currentIndex ? "opacity-100" : "opacity-0"
+          }`}
+        />
+      ))}
     </div>
-  );
+
+    {/* Dots Navigation */}
+    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
+      {images.map((_, index) => (
+        <button
+          key={index}
+          onClick={() => setCurrentIndex(index)}
+          className={`w-3 h-3 rounded-full transition-all duration-300 ${
+            currentIndex === index ? "bg-white scale-110" : "bg-gray-400"
+          }`}
+        />
+      ))}
+    </div>
+  </div>
+);
+
 };
 
 export default MyCarousel;
