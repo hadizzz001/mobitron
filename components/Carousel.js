@@ -49,7 +49,7 @@ const MyCarousel = () => {
 return (
   <div className="relative w-full overflow-hidden">
     {/* Image Container with responsive heights */}
-    <div className="relative w-full h-[300px] md:h-[500px]">
+    <div className="relative w-full h-[200px] md:h-[400px]">
       {images.map((img, index) => (
         <img
           key={index}
