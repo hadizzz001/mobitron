@@ -33,6 +33,7 @@ export async function GET(req) {
     const rawBrnd = searchParams.get("brnd");
     const rawSizes = searchParams.getAll("size");
 
+    // ✅ force-trim params before querying
     const search = rawSearch?.trim();
     const cat = rawCat?.trim();
     const sub = rawSub?.trim();
@@ -41,7 +42,7 @@ export async function GET(req) {
 
     const query = {};
 
-    // 🔍 Fuzzy search
+    // 🔍 FUZZY SEARCH (multi-word)
     if (search) {
       if (search.toLowerCase() === "moto") {
         query.category = "moto";
@@ -60,21 +61,28 @@ export async function GET(req) {
       }
     }
 
+    // ✅ FIX: match category even if DB has spaces before/after
     if (cat) {
       if (cat === "yes") {
         query.arrival = "yes";
       } else {
-        query.category = { $regex: `^${cat}\\s*$`, $options: "i" };
+        query.category = { $regex: `\\s*${cat}\\s*`, $options: "i" };
       }
     }
 
-    if (sub) query.sub = { $regex: `^${sub}\\s*$`, $options: "i" };
-    if (brnd) query.factory = { $regex: `^${brnd}\\s*$`, $options: "i" };
-    if (sizes.length > 0) query["color.sizes.size"] = { $in: sizes };
+    // ✅ FIX: match subcategory even if DB has spaces before/after
+    if (sub) query.sub = { $regex: `\\s*${sub}\\s*`, $options: "i" };
+
+    // ✅ FIX: match brand/factory even if DB has spaces before/after
+    if (brnd) query.factory = { $regex: `\\s*${brnd}\\s*`, $options: "i" };
+
+    // size filter
+    if (sizes.length > 0)
+      query["color.sizes.size"] = { $in: sizes };
 
     const total = await collection.countDocuments(query);
 
-    // ✅ Aggregation pipeline with proper sort handling
+    // ✅ SORT with fallback for items without sort number
     const data = await collection
       .aggregate([
         { $match: query },
@@ -84,7 +92,7 @@ export async function GET(req) {
               $cond: [
                 { $and: [{ $ifNull: ["$sort", false] }, { $ne: ["$sort", 0] }] },
                 "$sort",
-                Number.MAX_SAFE_INTEGER, // push 0/null/undefined to the end
+                Number.MAX_SAFE_INTEGER, // push undefined sort to bottom
               ],
             },
           },
@@ -113,15 +121,12 @@ export async function GET(req) {
     );
   } catch (error) {
     console.error("❌ Error fetching data from MongoDB:", error);
-    return new NextResponse(
-      JSON.stringify({ error: "Failed to fetch data" }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+    return new NextResponse(JSON.stringify({ error: "Failed to fetch data" }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
   }
 }
