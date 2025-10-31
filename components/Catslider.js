@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaBars, FaTimes } from 'react-icons/fa';
 
+let subSortMap = [];
+
+
 export default function FactoryNav() {
   const [products, setProducts] = useState([]);
   const [factories, setFactories] = useState([]);
@@ -11,119 +14,58 @@ export default function FactoryNav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch('/api/products');
-        const data = await res.json();
+useEffect(() => {
+  const loadAllData = async () => {
+    try {
+      // Get product data
+      const prodRes = await fetch("/api/products");
+      const productsData = await prodRes.json();
 
-        // ✅ Sort products by 'sort' ascending, placing 0/null/undefined at the end
-        const sortedData = data.sort((a, b) => {
-          const sortA =
-            a.sort === null || a.sort === undefined || a.sort === 0
-              ? Infinity
-              : a.sort;
-          const sortB =
-            b.sort === null || b.sort === undefined || b.sort === 0
-              ? Infinity
-              : b.sort;
-          return sortA - sortB;
-        });
+      // Get brand sort list
+      const brandRes = await fetch("/api/brand");
+      const brandSortList = await brandRes.json(); // [{ name:"Nike", sort:2 }, ...]
 
-        setProducts(sortedData);
+      // Get sub sort list
+      const subRes = await fetch("/api/sub");
+      const subSortList = await subRes.json(); // [{ name:"Shoes", sort:1 }, ...]
 
-        // ✅ Get unique factories sorted by the lowest product sort value
-        const uniqueFactories = [...new Set(sortedData.map((p) => p.factory))].sort(
-          (a, b) => {
-            const aMin = Math.min(
-              ...sortedData
-                .filter((p) => p.factory === a)
-                .map((p) =>
-                  p.sort === null || p.sort === undefined || p.sort === 0
-                    ? Infinity
-                    : p.sort
-                )
-            );
-            const bMin = Math.min(
-              ...sortedData
-                .filter((p) => p.factory === b)
-                .map((p) =>
-                  p.sort === null || p.sort === undefined || p.sort === 0
-                    ? Infinity
-                    : p.sort
-                )
-            );
-            return aMin - bMin;
-          }
-        );
+      setProducts(productsData);
 
-        setFactories(uniqueFactories);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchProducts();
-  }, []);
+      // ✅ Unique factories from product list
+      const uniqueFactories = [...new Set(productsData.map(p => p.factory))];
 
-  const getCategoriesByFactory = (factory) => {
-    const filtered = products.filter((p) => p.factory === factory);
-    const uniqueCategories = [
-      ...new Set(filtered.map((p) => p.category)),
-    ];
+      // ✅ Sort factories using external brand sort API
+      const sortedFactories = uniqueFactories.sort((a, b) => {
+        const brandA = brandSortList.find(x => x.name === a)?.sort ?? Infinity;
+        const brandB = brandSortList.find(x => x.name === b)?.sort ?? Infinity;
+        return brandA - brandB;
+      });
 
-    // ✅ Sort categories by minimum sort value among products in that category
-    return uniqueCategories.sort((a, b) => {
-      const aMin = Math.min(
-        ...filtered
-          .filter((p) => p.category === a)
-          .map((p) =>
-            p.sort === null || p.sort === undefined || p.sort === 0
-              ? Infinity
-              : p.sort
-          )
-      );
-      const bMin = Math.min(
-        ...filtered
-          .filter((p) => p.category === b)
-          .map((p) =>
-            p.sort === null || p.sort === undefined || p.sort === 0
-              ? Infinity
-              : p.sort
-          )
-      );
-      return aMin - bMin;
-    });
+      setFactories(sortedFactories);
+
+      // ✅ Save sub sort map to use later in getter function
+      subSortMap = subSortList;
+
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
   };
 
-  const getSubsByFactoryAndCategory = (factory, category) => {
-    const filtered = products.filter(
-      (p) => p.factory === factory && p.category === category
-    );
-    const uniqueSubs = [...new Set(filtered.map((p) => p.sub))];
+  loadAllData();
+}, []);
 
-    // ✅ Sort subs by minimum sort value
-    return uniqueSubs.sort((a, b) => {
-      const aMin = Math.min(
-        ...filtered
-          .filter((p) => p.sub === a)
-          .map((p) =>
-            p.sort === null || p.sort === undefined || p.sort === 0
-              ? Infinity
-              : p.sort
-          )
-      );
-      const bMin = Math.min(
-        ...filtered
-          .filter((p) => p.sub === b)
-          .map((p) =>
-            p.sort === null || p.sort === undefined || p.sort === 0
-              ? Infinity
-              : p.sort
-          )
-      );
-      return aMin - bMin;
-    });
-  };
+
+const getSubsByFactory = (factory) => {
+  const filtered = products.filter(p => p.factory === factory);
+  const uniqueSubs = [...new Set(filtered.map(p => p.sub))];
+
+  // ✅ Sort subs using external sort list
+  return uniqueSubs.sort((a, b) => {
+    const aSort = subSortMap.find(x => x.name === a)?.sort ?? Infinity;
+    const bSort = subSortMap.find(x => x.name === b)?.sort ?? Infinity;
+    return aSort - bSort;
+  });
+};
 
   const handleSubClick = (sub) => {
     setMenuOpen(false);
@@ -132,18 +74,14 @@ export default function FactoryNav() {
 
   return (
     <nav className="factory-nav">
-      {/* ===== Hamburger (mobile) ===== */}
+      {/* Hamburger (mobile) */}
       <div className="hamburger-container">
-        <button
-          className="hamburger-btn"
-          onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Toggle menu"
-        >
+        <button className="hamburger-btn" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes /> : <FaBars />}
         </button>
       </div>
 
-      {/* ===== Factory Menu ===== */}
+      {/* Brand Menu */}
       <ul className={`factory-list ${menuOpen ? 'open' : ''}`}>
         {factories.map((factory, i) => (
           <li
@@ -156,29 +94,20 @@ export default function FactoryNav() {
 
             {hoveredFactory === factory && (
               <div className="factory-dropdown">
-                {getCategoriesByFactory(factory).map((cat, j) => (
-                  <div key={j} className="category-block">
-                    <div className="category-title">{cat}</div>
-                    <ul className="sub-list">
-                      {getSubsByFactoryAndCategory(factory, cat).map((sub, k) => (
-                        <li
-                          key={k}
-                          className="sub-item"
-                          onClick={() => handleSubClick(sub)}
-                        >
-                          {sub}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+                <ul className="sub-list">
+                  {getSubsByFactory(factory).map((sub, k) => (
+                    <li key={k} className="sub-item" onClick={() => handleSubClick(sub)}>
+                      {sub}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </li>
         ))}
       </ul>
 
-      {/* ===== CSS ===== */}
+      {/* CSS */}
       <style jsx>{`
         * {
           color: #222 !important;
@@ -191,7 +120,6 @@ export default function FactoryNav() {
           z-index: 999;
         }
 
-        /* Hamburger */
         .hamburger-container {
           display: none;
         }
@@ -201,16 +129,14 @@ export default function FactoryNav() {
           border: none;
           font-size: 2rem;
           cursor: pointer;
-          color: #222 !important;
         }
 
-        /* Desktop Menu */
         .factory-list {
           display: flex;
           gap: 2rem;
           list-style: none;
-          margin: 0;
           padding: 0;
+          margin: 0;
         }
 
         .factory-item {
@@ -218,52 +144,27 @@ export default function FactoryNav() {
           cursor: pointer;
         }
 
-        .factory-name {
-          font-weight: 500;
-          color: #222 !important;
-        }
-
         .factory-dropdown {
           position: absolute;
           top: 100%;
           left: 0;
           background: #f9f9f9;
-          padding: 1.5rem 1rem;
+          padding: 1rem;
           border-radius: 6px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-          display: flex;
-          gap: 2rem;
-          z-index: 1000;
-          width: 400px;
-        }
-
-        .category-block {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .category-title {
-          font-weight: 700;
-          margin-bottom: 0.25rem;
-          color: #222 !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          width: 250px;
         }
 
         .sub-item {
-          padding: 0.15rem 0;
+          padding: 0.25rem 0;
           cursor: pointer;
-          color: #222 !important;
         }
 
-        .sub-item:hover {
-          color: #555 !important;
-        }
-
-        /* ===== Mobile Styles ===== */
+        /* Mobile */
         @media (max-width: 768px) {
           .hamburger-container {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
+            display: block;
+            text-align: right;
             margin-bottom: 1rem;
           }
 
@@ -271,31 +172,17 @@ export default function FactoryNav() {
             display: none;
             flex-direction: column;
             gap: 1rem;
-            background: #fff;
-            padding: 1rem;
-            border-top: 1px solid #ddd;
           }
 
           .factory-list.open {
             display: flex;
           }
 
-          .factory-item {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-          }
-
           .factory-dropdown {
             position: relative;
-            top: 0;
-            left: 0;
-            flex-direction: column;
-            gap: 1rem;
-            box-shadow: none;
             width: 100%;
-            padding: 1rem;
-            border-radius: 6px;
-            background: #f9f9f9;
+            box-shadow: none;
+            padding-left: 0;
           }
         }
       `}</style>

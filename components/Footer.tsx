@@ -25,7 +25,7 @@ const Footer = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await fetch("/api/category");
+                const response = await fetch("/api/brand");
                 const data = await response.json();
                 setTemp(data);
             } catch (error) {
@@ -261,9 +261,9 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="column collapsable-section" id='footId2' onClick={handleFoot2}>
+                    {/* <div className="column collapsable-section" id='footId2' onClick={handleFoot2}>
                         <h4 className='myGray'>
-                            Shop Collections
+                            Shop Brands
                             <svg
                                 version="1.1"
                                 id="Layer_1"
@@ -295,7 +295,7 @@ const Footer = () => {
                                 allTemp.map((category , index) => (
                                     <li key={index}>
                                         <a
-                                            href={`/search?cat=${category.name}`}
+                                            href={`/search?brnd=${category.name}`}
                                             data-auto-id="true"
                                             id={`page-footer-category-${index}`}
                                         >
@@ -325,7 +325,7 @@ const Footer = () => {
 
 
 
-                    </div>
+                    </div> */}
 
                     <div className="column ">  </div>
                 </nav>

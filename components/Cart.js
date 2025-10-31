@@ -166,10 +166,7 @@ useEffect(() => {
                                                 </div>
                                                 <div className="Checkout_Cart_LineItems_LineItem_Details myGray">
                                                     {obj.title}
-                                                    <div>
-                                                        <span className="myGray">Category:</span>
-                                                        <span className="myGray">{obj.category}</span>
-                                                    </div>
+                                                  
                                                     <div className="Checkout_Cart_LineItems_LineItem_Details_Quantity">
                                                         <span className="myGray">Qty:</span>
 

@@ -397,7 +397,7 @@ const Page = () => {
                         />
                       </h4>
                       <p className="mb-2 myGray">Brand: {fact}</p>
-                      <p className="mb-2 myGray">Category: {cat}</p> 
+                      <p className="mb-2 myGray">Sub-Category: {sub}</p> 
                       <p className="mb-2 myGray">Item code: {icode}</p> 
                     </span>
 
