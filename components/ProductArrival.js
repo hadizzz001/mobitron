@@ -54,7 +54,7 @@ items: finalData.slice(0, 4).map(product => {
   return {
     id: product._id,
     title: product.title,
-    category: product.category,
+    category: product.sub,
     img: product.img[0],
     price: priceDisplay,
     discount: discountDisplay,
