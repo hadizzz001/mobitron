@@ -24,7 +24,7 @@ const Page = () => {
   const search = searchParams.get('id');
   const custom = searchParams.get('custom');
   const imgg = searchParams.get('imgg');
-  let imgs, title, price, desc, cat, brand, discount, id, stock, type, color, sub, fact, views, orders, icode;
+  let imgs, title, price, desc, cat, brand, discount, id, stock, type, color, sub, fact, icode;
   const { cart, addToCart, quantities } = useCart();
   const { isBooleanValue, setBooleanValue } = useBooleanValue();
   const isInCart = cart?.some((item) => item._id === search);
@@ -76,9 +76,7 @@ const Page = () => {
     type = allTemp1.type;
     color = allTemp1.color;
     sub = allTemp1.sub;
-    fact = allTemp1.factory;
-    views = allTemp1.views;
-    orders = allTemp1.orders;
+    fact = allTemp1.factory; 
     icode = allTemp1.code;
   }
 
@@ -144,7 +142,7 @@ const Page = () => {
 
 
 
- 
+
 
 
   const handleSubmit = (e) => {
@@ -163,8 +161,7 @@ const Page = () => {
     }
 
     addToCart(allTemp1, quantity, selectedColor, selectedSize);
-    handleClickc();
-    incrementViews123();
+    handleClickc(); 
 
   };
 
@@ -397,8 +394,8 @@ const Page = () => {
                         />
                       </h4>
                       <p className="mb-2 myGray">Brand: {fact}</p>
-                      <p className="mb-2 myGray">Sub-Category: {sub}</p> 
-                      <p className="mb-2 myGray">Item code: {icode}</p> 
+                      <p className="mb-2 myGray">Sub-Category: {sub}</p>
+                      <p className="mb-2 myGray">Item code: {icode}</p>
                     </span>
 
                     <div className="ApexPriceAndFreeShippingWrapper">
@@ -487,126 +484,142 @@ const Page = () => {
                           )}
                         </div>
                       )}
-{/* --- price logic --- */}
-{hasSizes ? (
-  selectedSize ? (
-    (() => {
-      const original = parseFloat(displayedPrice);
-      return (
-        <div className="flex items-center space-x-2">
-          <h3 className="mb-2 myRed font-bold myPrice123">
-            ${original.toFixed(2)}
-          </h3>
-        </div>
-      );
-    })()
-  ) : null
-) : (() => {
-  const originalPrice = parseFloat(price || "0");
-  const discountPrice = parseFloat(discount || "0");
+                      {/* --- price logic --- */}
+                      {allTemp1?.noprice !== "yes" && (
+                        hasSizes ? (
+                          selectedSize ? (
+                            (() => {
+                              const original = parseFloat(displayedPrice);
+                              return (
+                                <div className="flex items-center space-x-2">
+                                  <h3 className="mb-2 myRed font-bold myPrice123">
+                                    ${original.toFixed(2)}
+                                  </h3>
+                                </div>
+                              );
+                            })()
+                          ) : null
+                        ) : (() => {
+                          const originalPrice = parseFloat(price || "0");
+                          const discountPrice = parseFloat(discount || "0");
 
-  // If discount is the same as price, show only price
-  if (originalPrice === discountPrice || discountPrice === 0) {
-    return (
-      <div className="flex items-center space-x-2">
-        <h3 className="mb-2 myRed font-bold myPrice123">
-          ${originalPrice.toFixed(2)}
-        </h3>
-      </div>
-    );
-  }
+                          if (originalPrice === discountPrice || discountPrice === 0) {
+                            return (
+                              <div className="flex items-center space-x-2">
+                                <h3 className="mb-2 myRed font-bold myPrice123">
+                                  ${originalPrice.toFixed(2)}
+                                </h3>
+                              </div>
+                            );
+                          }
 
-  const discountPercent = Math.round(
-    ((originalPrice - discountPrice) / originalPrice) * 100
-  );
+                          const discountPercent = Math.round(
+                            ((originalPrice - discountPrice) / originalPrice) * 100
+                          );
 
-  return (
-    <div className="flex items-center space-x-2">
-      <h3 className="mb-2 myRed font-bold myPrice123">
-        ${discountPrice.toFixed(2)}
-      </h3>
-      <h2 className="mb-2 myGray line-through myPrice123">
-        ${originalPrice.toFixed(2)}
-      </h2>
+                          return (
+                            <div className="flex items-center space-x-2">
+                              <h3 className="mb-2 myRed font-bold myPrice123">
+                                ${discountPrice.toFixed(2)}
+                              </h3>
+                              <h2 className="mb-2 myGray line-through myPrice123">
+                                ${originalPrice.toFixed(2)}
+                              </h2>
 
-      {discountPercent !== null && (
-        <span className="text-xs text-gray-500">({discountPercent}% off)</span>
-      )}
-    </div>
-  );
-})()}
-
-
-
-                    </div>
-
-                    {/* --- add to cart / in bag --- */}
-                    <div className="bagsFeaturesGrid__gridWrapper">
-                      {isInCart ? (
-                        <>
-                          <p
-                            style={{
-                              color: "#222",
-                              textAlign: "center",
-                              fontSize: "2em",
-                              fontWeight: "bolder",
-                            }}
-                          >
-                            It's In cart!
-                          </p>
-                          <div>
-                            <span className="ProvidersSingleProduct--selected">
-                              <button
-                                type="button"
-                                className="AddToCart HtmlProductAddToCart"
-                                style={{ borderRadius: "0" }}
-                                onClick={gotocart}
-                              >
-                                <span>CHECKOUT NOW</span>
-                              </button>
-                            </span>
-                          </div>
-                          <br />
-                        </>
-                      ) : (
-                        <div>
-                          <form onSubmit={handleSubmit}>
-                            <QuantitySelector
-                              initialQty={quantity}
-                              onChange={setQuantity}
-                              productId={id}
-                              type={type}
-                              selectedColor={selectedColor}
-                              selectedSize={selectedSize}
-                            />
-
-                            <span className="ProvidersSingleProduct--selected">
-                              {!isOutOfStock ? (
-                                <button
-                                  type="submit"
-                                  className="AddToCart HtmlProductAddToCart"
-                                  style={{ borderRadius: "0" }}
-                                  disabled={isCollection && !selectedColor}
-                                >
-                                  <span>ADD TO CART</span>
-                                </button>
-                              ) : (
-                                <OutOfStockComponent itemName={title} />
+                              {discountPercent !== null && (
+                                <span className="text-xs text-gray-500">({discountPercent}% off)</span>
                               )}
-                            </span>
-                          </form>
-
-                          <span className="ProvidersIfSelectedProductMatchesFilter">
-                            <p
-                              className="myGray"
-                              dangerouslySetInnerHTML={{ __html: desc }}
-                            />
-                            <br />
-                          </span>
-                        </div>
+                            </div>
+                          );
+                        })()
                       )}
-                      <br />
+
+
+
+
+
+
                     </div>
+
+{/* --- add to cart / in bag --- */}
+<div className="bagsFeaturesGrid__gridWrapper">
+  {isInCart ? (
+    <>
+      <p
+        style={{
+          color: "#222",
+          textAlign: "center",
+          fontSize: "2em",
+          fontWeight: "bolder",
+        }}
+      >
+        It's In cart!
+      </p>
+      <div>
+        <span className="ProvidersSingleProduct--selected">
+          <button
+            type="button"
+            className="AddToCart HtmlProductAddToCart"
+            style={{ borderRadius: "0" }}
+            onClick={gotocart}
+          >
+            <span>CHECKOUT NOW</span>
+          </button>
+        </span>
+      </div>
+      <br />
+    </>
+  ) : (
+    <div>
+      <form onSubmit={handleSubmit}>
+        {!isOutOfStock ? (
+          allTemp1?.noprice === "yes" ? (
+            <button
+              type="button"
+              className="AddToCart HtmlProductAddToCart"
+              style={{ borderRadius: "0" }}
+              onClick={() =>
+                window.open("https://wa.me/+96171117587", "_blank")
+              }
+            >
+              <span>GET PRICE</span>
+            </button>
+          ) : (
+            <>
+              <QuantitySelector
+                initialQty={quantity}
+                onChange={setQuantity}
+                productId={id}
+                type={type}
+                selectedColor={selectedColor}
+                selectedSize={selectedSize}
+              />
+              <button
+                type="submit"
+                className="AddToCart HtmlProductAddToCart"
+                style={{ borderRadius: "0" }}
+                disabled={isCollection && !selectedColor}
+              >
+                <span>ADD TO CART</span>
+              </button>
+            </>
+          )
+        ) : (
+          <OutOfStockComponent itemName={title} />
+        )}
+      </form>
+      <span className="ProvidersIfSelectedProductMatchesFilter">
+        <p
+          className="myGray"
+          dangerouslySetInnerHTML={{ __html: desc }}
+        />
+        <br />
+      </span>
+    </div>
+  )}
+  <br />
+</div>
+
                   </section>
                 </div>
               </div>
@@ -622,31 +635,31 @@ const Page = () => {
                     <div className="ProductTile-SliderContainer-Title br_text-3xl-serif br_text-white myGray">RELATED PRODUCTS:</div>
                     {allTemp2 && allTemp2?.length > 0 ? (
                       <section style={{ maxWidth: "100%" }}>
-<Swiper
-  spaceBetween={20}
-  loop
-  dir="rtl" // This makes the slider right-to-left
-  modules={[Autoplay]}
-  autoplay={{
-    delay: 2000,
-    stopOnLastSlide: false,
-    reverseDirection: true, // optional, for autoplay reverse
-  }}
-  breakpoints={{
-    150: {
-      slidesPerView: 2,
-    },
-    768: {
-      slidesPerView: 4,
-    },
-  }}
->
-  {allTemp2.map((temp, index) => (
-    <SwiperSlide key={temp._id}>
-      <CarCard temp={temp} index={index} />
-    </SwiperSlide>
-  ))}
-</Swiper>
+                        <Swiper
+                          spaceBetween={20}
+                          loop
+                          dir="rtl" // This makes the slider right-to-left
+                          modules={[Autoplay]}
+                          autoplay={{
+                            delay: 2000,
+                            stopOnLastSlide: false,
+                            reverseDirection: true, // optional, for autoplay reverse
+                          }}
+                          breakpoints={{
+                            150: {
+                              slidesPerView: 2,
+                            },
+                            768: {
+                              slidesPerView: 4,
+                            },
+                          }}
+                        >
+                          {allTemp2.map((temp, index) => (
+                            <SwiperSlide key={temp._id}>
+                              <CarCard temp={temp} index={index} />
+                            </SwiperSlide>
+                          ))}
+                        </Swiper>
 
                       </section>
                     ) : (
