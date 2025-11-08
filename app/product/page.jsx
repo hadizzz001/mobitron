@@ -76,9 +76,16 @@ const Page = () => {
     type = allTemp1.type;
     color = allTemp1.color;
     sub = allTemp1.sub;
-    fact = allTemp1.factory; 
+    fact = allTemp1.factory;
     icode = allTemp1.code;
   }
+
+  // VAT Label
+  const vatLabel =
+    allTemp1?.tax === "yes"
+      ? "incl VAT"
+      : "excl VAT";
+
 
 
   useEffect(() => {
@@ -161,7 +168,7 @@ const Page = () => {
     }
 
     addToCart(allTemp1, quantity, selectedColor, selectedSize);
-    handleClickc(); 
+    handleClickc();
 
   };
 
@@ -494,6 +501,9 @@ const Page = () => {
                                 <div className="flex items-center space-x-2">
                                   <h3 className="mb-2 myRed font-bold myPrice123">
                                     ${original.toFixed(2)}
+                                    <span className="text-xs text-gray-500">
+                                      {" "+vatLabel}
+                                    </span>
                                   </h3>
                                 </div>
                               );
@@ -508,6 +518,9 @@ const Page = () => {
                               <div className="flex items-center space-x-2">
                                 <h3 className="mb-2 myRed font-bold myPrice123">
                                   ${originalPrice.toFixed(2)}
+                                                                      <span className="text-xs text-gray-500">
+                                      {" "+vatLabel}
+                                    </span>
                                 </h3>
                               </div>
                             );
@@ -521,6 +534,9 @@ const Page = () => {
                             <div className="flex items-center space-x-2">
                               <h3 className="mb-2 myRed font-bold myPrice123">
                                 ${discountPrice.toFixed(2)}
+                                                                    <span className="text-xs text-gray-500">
+                                      {" "+vatLabel}
+                                    </span>
                               </h3>
                               <h2 className="mb-2 myGray line-through myPrice123">
                                 ${originalPrice.toFixed(2)}
@@ -541,88 +557,100 @@ const Page = () => {
 
                     </div>
 
-{/* --- add to cart / in bag --- */}
-<div className="bagsFeaturesGrid__gridWrapper">
-  {isInCart ? (
-    <>
-      <p
-        style={{
-          color: "#222",
-          textAlign: "center",
-          fontSize: "2em",
-          fontWeight: "bolder",
-        }}
-      >
-        It's In cart!
-      </p>
-      <div>
-        <span className="ProvidersSingleProduct--selected">
-          <button
-            type="button"
-            className="AddToCart HtmlProductAddToCart"
-            style={{ borderRadius: "0" }}
-            onClick={gotocart}
-          >
-            <span>CHECKOUT NOW</span>
-          </button>
-        </span>
-      </div>
-      <br />
-    </>
-  ) : (
-    <div>
-      <form onSubmit={handleSubmit}>
-        {!isOutOfStock ? (
-          allTemp1?.noprice === "yes" ? (
-            <button
-              type="button"
-              className="AddToCart HtmlProductAddToCart"
-              style={{ borderRadius: "0" }}
-              onClick={() =>
-                window.open("https://wa.me/+96171117587", "_blank")
-              }
-            >
-              <span>GET PRICE</span>
-            </button>
-          ) : (
-            <>
-              <QuantitySelector
-                initialQty={quantity}
-                onChange={setQuantity}
-                productId={id}
-                type={type}
-                selectedColor={selectedColor}
-                selectedSize={selectedSize}
-              />
-              <button
-                type="submit"
-                className="AddToCart HtmlProductAddToCart"
-                style={{ borderRadius: "0" }}
-                disabled={isCollection && !selectedColor}
-              >
-                <span>ADD TO CART</span>
-              </button>
-            </>
-          )
-        ) : (
-          <OutOfStockComponent itemName={title} />
-        )}
-      </form>
-      <span className="ProvidersIfSelectedProductMatchesFilter">
-        <p
-          className="myGray"
-          dangerouslySetInnerHTML={{ __html: desc }}
-        />
-        <br />
-      </span>
-    </div>
-  )}
-  <br />
-</div>
+                    {/* --- add to cart / in bag --- */}
+                    <div className="bagsFeaturesGrid__gridWrapper">
+                      {isInCart ? (
+                        <>
+                          <p
+                            style={{
+                              color: "#222",
+                              textAlign: "center",
+                              fontSize: "2em",
+                              fontWeight: "bolder",
+                            }}
+                          >
+                            It's In cart!
+                          </p>
+                          <div>
+                            <span className="ProvidersSingleProduct--selected">
+                              <button
+                                type="button"
+                                className="AddToCart HtmlProductAddToCart"
+                                style={{ borderRadius: "0" }}
+                                onClick={gotocart}
+                              >
+                                <span>CHECKOUT NOW</span>
+                              </button>
+                            </span>
+                          </div>
+                          <br />
+                        </>
+                      ) : (
+                        <div>
+                          <form onSubmit={handleSubmit}>
+                            {!isOutOfStock ? (
+                              allTemp1?.noprice === "yes" ? (
+                                <button
+                                  type="button"
+                                  className="AddToCart HtmlProductAddToCart"
+                                  style={{ borderRadius: "0" }}
+                                  onClick={() =>
+                                    window.open("https://wa.me/+96171117587", "_blank")
+                                  }
+                                >
+                                  <span>GET PRICE</span>
+                                </button>
+                              ) : (
+                                <>
+                                  <QuantitySelector
+                                    initialQty={quantity}
+                                    onChange={setQuantity}
+                                    productId={id}
+                                    type={type}
+                                    selectedColor={selectedColor}
+                                    selectedSize={selectedSize}
+                                  />
+<a
+  href={`https://wa.me/+96171117587?text=Hello, I want to buy the product: ${title}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="AddToCart HtmlProductAddToCart1 mb-2"
+  style={{ borderRadius: "0", display: "inline-block", textAlign: "center" }}
+>
+  <span>Buy on Whatsapp</span>
+</a>
+
+                                  <button
+                                    type="submit"
+                                    className="AddToCart HtmlProductAddToCart"
+                                    style={{ borderRadius: "0" }}
+                                    disabled={isCollection && !selectedColor}
+                                  >
+                                    <span>ADD TO CART</span>
+                                  </button>
+                                </>
+                              )
+                            ) : (
+                              <OutOfStockComponent itemName={title} />
+                            )}
+                          </form>
+
+                        </div>
+                      )}
+                      <br />
+                    </div>
 
                   </section>
                 </div>
               </div>
+
+                                        <div className="container mt-10">
+                            <p
+                              className="myGray"
+                              dangerouslySetInnerHTML={{ __html: desc }}
+                            />
+                            <br />
+                          </div>
               <span className="ProvidersIfSelectedProductMatchesFilter">
                 <content-block slug="product-page-wssb">
                   <style dangerouslySetInnerHTML={{

@@ -64,6 +64,7 @@ export default function ProductGrid() {
               price: priceDisplay,
               discount: discountDisplay,
               type: product.type,
+              tax: product.tax,  
             };
           });
 
@@ -150,15 +151,31 @@ export default function ProductGrid() {
                   <p className="category">{product.category}</p>
                   <p className="title">{product.title}</p>
 
-                  {product.price && (
-                    <div className="price-row">
-                      <p className="price">
-                        <span className="currency">$</span>
-                        {product.price}
-                      </p>
-                      {product.discount && <p className="discount">${product.discount}</p>}
-                    </div>
-                  )}
+{product.price && (
+  <div className="price-row">
+    <p className="price">
+      <span className="currency">$</span>
+      {product.price}
+    </p>
+
+    {product.discount && (
+      <p className="discount">${product.discount}</p>
+    )}
+
+    {/* ✅ VAT LABEL */}
+    {product.tax === "yes" && (
+      <span style={{ fontSize: "12px", color: "#4caf50", marginLeft: "6px" }}>
+        incl VAT
+      </span>
+    )}
+    {product.tax === "no" && (
+      <span style={{ fontSize: "12px", color: "red", marginLeft: "6px" }}>
+        excl VAT
+      </span>
+    )}
+  </div>
+)}
+
                 </div>
               </div>
             ))}

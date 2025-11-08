@@ -7,7 +7,25 @@ interface CarCardProps {
 }
 
 const CarCard = ({ temp }: CarCardProps) => {
-  const { _id, title, price, discount, img, category, stock, type, color, noprice } = temp;
+  const {
+    _id,
+    title,
+    price,
+    discount,
+    img,
+    category,
+    stock,
+    type,
+    color,
+    noprice,
+    tax,              // ✅ <── add this
+  } = temp;
+
+  // --- VAT LABEL ---
+  const vatLabel =
+    tax === "yes"
+      ? "incl VAT"
+      : "excl VAT";
 
   // --- PRICE LOGIC ---
   let displayPrice = "";
@@ -30,11 +48,12 @@ const CarCard = ({ temp }: CarCardProps) => {
     } else {
       displayOldPrice = `$${initialPrice.toFixed(2)}`;
       displayPrice = `$${discountedPrice.toFixed(2)}`;
-      discountPercent = Math.round(((initialPrice - discountedPrice) / initialPrice) * 100);
+      discountPercent = Math.round(
+        ((initialPrice - discountedPrice) / initialPrice) * 100
+      );
     }
   }
 
-  // --- OUT OF STOCK CHECK ---
   const isOutOfStock =
     (type === "single" && parseInt(stock) === 0) ||
     (type === "collection" &&
@@ -73,14 +92,14 @@ const CarCard = ({ temp }: CarCardProps) => {
                     <a href={`/product?id=${_id}`} className="text-current no-underline">
                       <h2 className="text-sm font-bold myGray py-1">{title}</h2>
 
-                      {/* --- PRICE DISPLAY --- */}
+                      {/* --- PRICE DISPLAY WITH VAT LABEL --- */}
                       {noprice !== "yes" && (
                         type === "collection" ? (
                           <div className="font-light text-[11px] py-1 text-gray-400 myGray">
-                            {displayPrice}
+                            {displayPrice} <span className="text-[10px] ml-1 myGray">{vatLabel}</span>
                           </div>
                         ) : (
-                          <div className="price-container inline-flex flex-wrap gap-x-2 items-baseline justify-center text-white">
+                          <div className=" ">
                             {displayOldPrice && (
                               <span className="font-light text-[11px] py-1 line-through text-gray-400">
                                 {displayOldPrice}
@@ -91,6 +110,11 @@ const CarCard = ({ temp }: CarCardProps) => {
                               {discountPercent !== null && (
                                 <span className="ml-1 text-xs">({discountPercent}% off)</span>
                               )}
+                            </span>
+
+                            {/* ✅ VAT LABEL */}
+                            <span className="text-[10px] text-gray-300 ml-1 myGray">
+                              {vatLabel}
                             </span>
                           </div>
                         )
