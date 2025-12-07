@@ -70,7 +70,7 @@ export default function ProductGrid() {
 
         setProductsData([
           {
-            rowTitle: 'Christmas Deals',
+            rowTitle: 'X-MAS DEALS',
             items: mappedItems.slice(0, 4), // Only show first 4 products
           },
         ]);
