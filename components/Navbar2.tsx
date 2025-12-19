@@ -30,7 +30,7 @@ export default function NavBar() {
   };
 
   const handleOpenMaps = () => {
-    window.open("https://www.google.com/maps", "_blank");
+    window.open("https://www.google.com/maps?q=33.867584228515625,35.48665237426758&z=17&hl=en", "_blank");
   };
 
   return (
