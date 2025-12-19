@@ -38,7 +38,8 @@ export default function NavBar() {
       <Cart />
 
       {/* ✅ Header with gradient background */}
-      <header className="w-full sticky top-0 z-[2000] bg-gradient-to-b from-white to-[#dbdbdb] shadow-sm">
+      <header className="w-full sticky top-0 z-[2000] bg-gradient-to-b from-red-700 to-green-700 shadow-sm">
+
         {/* Desktop layout */}
         <div className="hidden md:flex items-center justify-between px-4 py-4 text-black gap-3">
           {/* Logo */}
@@ -56,8 +57,8 @@ export default function NavBar() {
             aria-label="Open menu"
             className="flex items-center space-x-2"
           >
-            <Menu className="w-6 h-6 stroke-[1.5] text-[#555]" />
-            <span className="text-[#555] text-md font-medium">Menu</span>
+            <Menu className="w-6 h-6 stroke-[1.5] text-[#fff]" />
+            <span className="text-[#fff] text-md font-medium">Menu</span>
           </button>
 
           {/* Search Bar */}
@@ -66,7 +67,7 @@ export default function NavBar() {
             method="get"
             className="flex items-center flex-1 mx-4 bg-white border border-gray-400 rounded-full px-4 py-3 h-12"
           >
-            <Search className="w-5 h-5 mr-3 text-[#555]" />
+            <Search className="w-5 h-5 mr-3 text-[#fff]" />
             <input
               type="text"
               name="q"
@@ -82,11 +83,11 @@ export default function NavBar() {
               aria-label="Open Google Maps"
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-200 transition"
             >
-              <MapPin className="w-7 h-7 text-[#555]" />
+              <MapPin className="w-7 h-7 text-[#fff]" />
             </button>
 
             <button onClick={handleClickc} className="relative ml-2">
-              <ShoppingCart className="w-7 h-7 stroke-[1.5] text-[#555]" />
+              <ShoppingCart className="w-7 h-7 stroke-[1.5] text-[#fff]" />
               {cart && cart.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-3 h-3"></span>
               )}
@@ -95,7 +96,7 @@ export default function NavBar() {
         </div>
 
         {/* ✅ Mobile layout */}
-        <div className="flex md:hidden flex-col px-3 py-2 bg-gradient-to-b from-white to-[#dbdbdb]" id='mymoblayoutformob'>
+        <div className="flex md:hidden flex-col px-3 py-2 bg-gradient-to-b from-red-700 to-green-700" id='mymoblayoutformob'>
           {/* Top row: logo + icons */}
           <div className="flex items-center justify-between">
             <button
@@ -103,8 +104,8 @@ export default function NavBar() {
               aria-label="Open menu"
               className="flex items-center space-x-1"
             >
-              <Menu className="w-6 h-6 stroke-[1.5] text-[#555]" />
-              <span className="text-[#555] text-sm font-medium">Menu</span>
+              <Menu className="w-6 h-6 stroke-[1.5] text-[#fff]" />
+              <span className="text-[#fff] text-sm font-medium">Menu</span>
             </button>
 
             <a href="/" className="flex items-center justify-center">
@@ -121,11 +122,11 @@ export default function NavBar() {
                 aria-label="Open Google Maps"
                 className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-200 transition"
               >
-                <MapPin className="w-6 h-6 text-[#555]" />
+                <MapPin className="w-6 h-6 text-[#fff]" />
               </button>
 
               <button onClick={handleClickc} className="relative">
-                <ShoppingCart className="w-6 h-6 stroke-[1.5] text-[#555]" />
+                <ShoppingCart className="w-6 h-6 stroke-[1.5] text-[#fff]" />
                 {cart && cart.length > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2.5 h-2.5"></span>
                 )}
@@ -139,7 +140,7 @@ export default function NavBar() {
             method="get"
             className="flex items-center bg-white border border-gray-400 rounded-full px-3 py-2 h-10 mt-3"
           >
-            <Search className="w-5 h-5 mr-2 text-[#555]" />
+            <Search className="w-5 h-5 mr-2 text-[#fff]" />
             <input
               type="text"
               name="q"
@@ -157,10 +158,10 @@ export default function NavBar() {
               className="absolute top-4 right-4"
               aria-label="Close menu"
             >
-              <X className="w-8 h-8 stroke-[1.5] text-[#555]" />
+              <X className="w-8 h-8 stroke-[1.5] text-[#fff]" />
             </button>
 
-            <nav className="flex flex-col items-center gap-6 mt-12 text-3xl font-bold text-[#555]">
+            <nav className="flex flex-col items-center gap-6 mt-12 text-3xl font-bold text-[#fff]">
               <a href="/" onClick={() => setMenuOpen(false)}>Home</a>
               <a href="/shop" onClick={() => setMenuOpen(false)}>Shop</a>
               <a href="/contact" onClick={() => setMenuOpen(false)}>Contact Us</a>
