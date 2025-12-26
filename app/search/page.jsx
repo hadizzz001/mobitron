@@ -112,7 +112,7 @@ const Body = () => {
     try {
       const params = new URLSearchParams();
       params.append('page', pageNum);
-      params.append('limit', 10); // or any number you want
+      params.append('limit', 12); // or any number you want
 
       if (search) params.append('q', search);
       if (search2) params.append('cat', search2);

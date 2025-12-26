@@ -131,7 +131,7 @@ const fetchProducts = async (pageNum = 1) => {
   const params = new URLSearchParams();
 
   params.append("page", pageNum);
-  params.append("limit", 10);
+  params.append("limit", 12);
 
   checkedCategories.forEach((cat) => params.append("cat", cat));
   checkedSubCategories.forEach((sub) => params.append("sub", sub));
