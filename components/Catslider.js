@@ -74,10 +74,13 @@ export default function FactoryNav() {
     });
   };
 
-  const handleSubClick = (sub) => {
-    setMenuOpen(false);
-    router.push(`/search?sub=${encodeURIComponent(sub)}`);
-  };
+const handleSubClick = (sub, brand) => {
+  setMenuOpen(false);
+  router.push(
+    `/search?sub=${encodeURIComponent(sub)}&brnd=${encodeURIComponent(brand)}`
+  );
+};
+
 
   return (
     <nav className="factory-nav">
@@ -109,7 +112,7 @@ export default function FactoryNav() {
                         <li
                           key={k}
                           className="sub-item"
-                          onClick={() => handleSubClick(sub)}
+                         onClick={() => handleSubClick(sub, factory)}
                         >
                           {sub}
                         </li>
@@ -139,7 +142,10 @@ export default function FactoryNav() {
                 <div className="factory-dropdown">
                   <ul className="sub-list">
                     {getSubsByFactory(factory).map((sub, k) => (
-                      <li key={k} className="sub-item" onClick={() => handleSubClick(sub)}>
+                      <li key={k} className="sub-item" 
+                     onClick={() => handleSubClick(sub, factory)}
+                      
+                      >
                         {sub}
                       </li>
                     ))}
