@@ -21,6 +21,7 @@ export default function FactoryNav() {
     dragFree: true,
     containScroll: 'trimSnaps'
   });
+const normalize = (str = "") => str.trim().toLowerCase();
 
   useEffect(() => {
     const checkScreen = () => setIsDesktop(window.innerWidth > 768);
@@ -43,7 +44,16 @@ export default function FactoryNav() {
 
         setProducts(productsData);
 
-        const uniqueFactories = [...new Set(productsData.map(p => p.factory))];
+const factoryMap = new Map();
+
+productsData.forEach(p => {
+  const key = normalize(p.factory);
+  if (!factoryMap.has(key)) {
+    factoryMap.set(key, p.factory); // keep original casing
+  }
+});
+
+const uniqueFactories = [...factoryMap.values()];
 
         const sortedFactories = uniqueFactories.sort((a, b) => {
           const brandA = brandSortList.find(x => x.name === a)?.sort ?? Infinity;
@@ -63,16 +73,29 @@ export default function FactoryNav() {
     loadAllData();
   }, []);
 
-  const getSubsByFactory = (factory) => {
-    const filtered = products.filter(p => p.factory === factory);
-    const uniqueSubs = [...new Set(filtered.map(p => p.sub))];
+const getSubsByFactory = (factory) => {
+  const factoryKey = normalize(factory);
 
-    return uniqueSubs.sort((a, b) => {
-      const aSort = subSortMap.find(x => x.name === a)?.sort ?? Infinity;
-      const bSort = subSortMap.find(x => x.name === b)?.sort ?? Infinity;
-      return aSort - bSort;
-    });
-  };
+  const filtered = products.filter(
+    p => normalize(p.factory) === factoryKey
+  );
+
+  const subMap = new Map();
+
+  filtered.forEach(p => {
+    const subKey = normalize(p.sub);
+    if (!subMap.has(subKey)) {
+      subMap.set(subKey, p.sub); // keep original casing
+    }
+  });
+
+  return [...subMap.values()].sort((a, b) => {
+    const aSort = subSortMap.find(x => normalize(x.name) === normalize(a))?.sort ?? Infinity;
+    const bSort = subSortMap.find(x => normalize(x.name) === normalize(b))?.sort ?? Infinity;
+    return aSort - bSort;
+  });
+};
+
 
 const handleSubClick = (sub, brand) => {
   setMenuOpen(false);
